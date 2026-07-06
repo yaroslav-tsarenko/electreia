@@ -1,0 +1,243 @@
+/*
+ * Electreia — "Cool Precision Tech" design tokens.
+ * Dark-first, high-contrast, tight steel neutrals with a luminous
+ * electric-azure accent and a violet secondary for special surfaces.
+ * Kept as CSS custom properties for legacy inline styles and cross-referenced
+ * by @theme in globals.css so every Tailwind utility (bg-primary, text-ink,
+ * border-line, ...) picks them up automatically.
+ */
+
+:root {
+  /* ── Brand ──────────────────────────────────────────────────────────── */
+  --color-primary: #2E7DFF;          /* electric azure — CTAs, prices, active */
+  --color-primary-hover: #1E68E6;
+  --color-primary-tint: #E4EEFF;     /* soft azure wash on light bg */
+  --color-primary-glow: #12233F;     /* deep azure glow tint on dark hover */
+  --color-primary-fg: #FFFFFF;       /* text on primary surfaces */
+
+  --color-accent: #2E7DFF;           /* alias — accent === primary azure */
+  --color-accent-hover: #1E68E6;
+  --color-accent-tint: rgba(46, 125, 255, 0.10);
+  --color-accent-fg: #FFFFFF;
+
+  --color-violet: #7C5CFF;           /* secondary — badges, gradient stops */
+  --color-violet-hover: #6949E6;
+  --color-violet-tint: rgba(124, 92, 255, 0.12);
+
+  --color-secondary: #FFFFFF;
+  --color-price: var(--color-primary);
+  --color-cta: var(--color-primary);
+  --color-cta-hover: var(--color-primary-hover);
+  --color-header: #FFFFFF;
+  --color-header-secondary: #F4F6F8;
+
+  /* Legacy aliases used across older components */
+  --color-accent-light: var(--color-accent-tint);
+  --color-accent-2: var(--color-violet);
+  --color-accent-2-hover: var(--color-violet-hover);
+  --color-accent-3: #3ED598;
+  --color-accent-4: #8A94A6;
+
+  /* ── Surfaces (light — cool paper) ──────────────────────────────────── */
+  --color-bg: #F4F6F8;               /* cool paper white — page bg */
+  --color-bg-elevated: #FFFFFF;      /* cards, dialogs */
+  --color-bg-secondary: #EAEEF3;     /* subtle raised strip */
+  --color-bg-tertiary: #DDE3EA;      /* muted */
+  --color-bg-warm: #EEF3FA;
+  --color-bg-cool: #E7EEF8;
+
+  /* ── Text (light) ───────────────────────────────────────────────────── */
+  --color-text: #0E1116;             /* near-black cool ink */
+  --color-text-secondary: #4A5262;
+  --color-text-tertiary: #8A94A6;
+  --color-text-inverse: #EDF1F5;
+
+  /* ── Lines (light) ──────────────────────────────────────────────────── */
+  --color-border: #DDE3EA;
+  --color-border-hover: #C4CDDA;
+  --color-border-strong: #A3AEBE;
+  --color-hairline: rgba(14, 17, 22, 0.08);
+
+  /* ── Status (light) ─────────────────────────────────────────────────── */
+  --color-success: #3ED598;          /* crisp mint — "in stock" */
+  --color-success-light: rgba(62, 213, 152, 0.14);
+  --color-warning: #F5A524;
+  --color-warning-light: rgba(245, 165, 36, 0.14);
+  --color-danger: #F5385D;
+  --color-danger-light: rgba(245, 56, 93, 0.12);
+  --color-info: #2E7DFF;
+
+  /* ── Elevation — hairlines + subtle blue glow on hover ──────────────── */
+  --shadow-sm: 0 1px 2px rgba(14, 17, 22, 0.05);
+  --shadow-md: 0 4px 14px rgba(14, 17, 22, 0.06);
+  --shadow-lg: 0 12px 32px rgba(14, 17, 22, 0.08);
+  --shadow-xl: 0 24px 60px rgba(14, 17, 22, 0.12);
+  --shadow-card: 0 1px 2px rgba(14, 17, 22, 0.05);
+  --shadow-card-hover: 0 8px 24px rgba(46, 125, 255, 0.16);
+  --shadow-accent: 0 10px 24px rgba(46, 125, 255, 0.24);
+  --shadow-warm: 0 10px 24px rgba(124, 92, 255, 0.20);
+  --shadow-glow-azure: 0 0 24px rgba(46, 125, 255, 0.35);
+  --shadow-glow-violet: 0 0 24px rgba(124, 92, 255, 0.35);
+
+  /* ── Gradients — cool azure→violet, technical ────────────────────────── */
+  --gradient-primary: linear-gradient(135deg, #2E7DFF 0%, #7C5CFF 100%);
+  --gradient-accent: linear-gradient(135deg, #2E7DFF 0%, #1E68E6 100%);
+  --gradient-warm: linear-gradient(180deg, #F4F6F8 0%, #EAEEF3 100%);
+  --gradient-cool: linear-gradient(180deg, #0B0E14 0%, #141821 100%);
+  --gradient-hero: linear-gradient(135deg, #F4F6F8 0%, #E4EEFF 100%);
+  --gradient-badge: linear-gradient(135deg, #2E7DFF 0%, #7C5CFF 100%);
+  --gradient-mint: linear-gradient(135deg, #E4EEFF 0%, #F4F6F8 100%);
+  --gradient-sunset: linear-gradient(135deg, rgba(46, 125, 255, 0.08) 0%, rgba(124, 92, 255, 0.08) 100%);
+  --gradient-electric: linear-gradient(135deg, #2E7DFF 0%, #7C5CFF 100%);
+  --gradient-card-hover: linear-gradient(180deg, rgba(46, 125, 255, 0.04) 0%, rgba(124, 92, 255, 0.04) 100%);
+
+  /* ── Radii — crisp, precision-tech corners ──────────────────────────── */
+  --radius-sm: 0.375rem;   /* 6 */
+  --radius-md: 0.625rem;   /* 10 */
+  --radius-lg: 0.875rem;   /* 14 */
+  --radius-xl: 1rem;       /* 16 */
+  --radius-2xl: 1.25rem;   /* 20 */
+  --radius-pill: 9999px;
+
+  /* ── Layout ─────────────────────────────────────────────────────────── */
+  --max-width: 1240px;
+  --header-height: 148px;
+  --announcement-height: 36px;
+
+  /* ── Type — geometric display, neutral sans, mono for specs ─────────── */
+  --font-sans: var(--font-inter), var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-space-grotesk), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-space-grotesk), ui-serif, Georgia, serif;
+  --font-mono: var(--font-jetbrains-mono), var(--font-geist-mono), ui-monospace, monospace;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Promo tints — cool-toned, no warm/pastel ───────────────────────── */
+  --promo-bg-blue: #E4EEFF;
+  --promo-bg-warm: #EFECFF;
+  --promo-bg-green: rgba(62, 213, 152, 0.10);
+  --promo-bg-purple: #EFECFF;
+  --promo-bg-pink: rgba(124, 92, 255, 0.10);
+}
+
+[data-theme="dark"],
+.dark {
+  /* ── Brand — luminous on deep slate ──────────────────────────────────── */
+  --color-primary: #4C93FF;           /* lifted azure that hits AA on dark */
+  --color-primary-hover: #6BA6FF;
+  --color-primary-tint: rgba(76, 147, 255, 0.16);
+  --color-primary-glow: rgba(46, 125, 255, 0.28);
+  --color-primary-fg: #05070C;
+
+  --color-accent: #4C93FF;
+  --color-accent-hover: #6BA6FF;
+  --color-accent-tint: rgba(76, 147, 255, 0.16);
+  --color-accent-fg: #05070C;
+
+  --color-violet: #9B84FF;
+  --color-violet-hover: #B29EFF;
+  --color-violet-tint: rgba(155, 132, 255, 0.18);
+
+  --color-secondary: #05070C;
+  --color-price: var(--color-primary);
+  --color-cta: var(--color-primary);
+  --color-cta-hover: var(--color-primary-hover);
+  --color-header: #0B0E14;
+  --color-header-secondary: #141821;
+
+  --color-accent-light: var(--color-accent-tint);
+  --color-accent-2: var(--color-violet);
+  --color-accent-2-hover: var(--color-violet-hover);
+  --color-accent-3: #3ED598;
+  --color-accent-4: #8A94A6;
+
+  /* ── Surfaces — 4 tiers so cards float on the deep canvas ─────────── */
+  --color-bg: #0B0E14;                /* base — deep slate */
+  --color-bg-elevated: #141821;       /* cards / dialogs */
+  --color-bg-secondary: #1B2030;      /* subtle raised strips */
+  --color-bg-tertiary: #232A36;       /* panels / rows / muted */
+  --color-bg-warm: #171B26;
+  --color-bg-cool: #101623;
+
+  /* ── Text — high contrast cool white ────────────────────────────────── */
+  --color-text: #EDF1F5;
+  --color-text-secondary: #8A94A6;
+  --color-text-tertiary: #5A6478;
+  --color-text-inverse: #0E1116;
+
+  /* ── Lines — cool steel, visible without being loud ────────────────── */
+  --color-border: #232A36;
+  --color-border-hover: #2E3648;
+  --color-border-strong: #3A4358;
+  --color-hairline: rgba(237, 241, 245, 0.08);
+
+  /* ── Status — vibrant on dark ──────────────────────────────────────── */
+  --color-success: #3ED598;
+  --color-success-light: rgba(62, 213, 152, 0.16);
+  --color-warning: #F5C543;
+  --color-warning-light: rgba(245, 197, 67, 0.14);
+  --color-danger: #FF5876;
+  --color-danger-light: rgba(255, 88, 118, 0.14);
+
+  /* ── Shadows — heavier + azure glow for depth on dark ──────────────── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 32px 80px rgba(0, 0, 0, 0.65);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-card-hover: 0 14px 32px rgba(46, 125, 255, 0.35);
+  --shadow-accent: 0 12px 30px rgba(46, 125, 255, 0.40);
+  --shadow-warm: 0 12px 30px rgba(124, 92, 255, 0.30);
+  --shadow-glow-azure: 0 0 32px rgba(46, 125, 255, 0.55);
+  --shadow-glow-violet: 0 0 32px rgba(124, 92, 255, 0.50);
+
+  /* ── Gradients — azure→violet on deep slate ────────────────────────── */
+  --gradient-primary: linear-gradient(135deg, #2E7DFF 0%, #7C5CFF 100%);
+  --gradient-accent: linear-gradient(135deg, #2E7DFF 0%, #1E68E6 100%);
+  --gradient-warm: linear-gradient(180deg, #141821 0%, #0B0E14 100%);
+  --gradient-cool: linear-gradient(180deg, #141821 0%, #0B0E14 100%);
+  --gradient-hero: linear-gradient(135deg, #0B0E14 0%, #12233F 60%, #1F1A3A 100%);
+  --gradient-badge: linear-gradient(135deg, #2E7DFF 0%, #7C5CFF 100%);
+  --gradient-mint: linear-gradient(135deg, rgba(46, 125, 255, 0.14) 0%, rgba(124, 92, 255, 0.10) 100%);
+  --gradient-sunset: linear-gradient(135deg, rgba(46, 125, 255, 0.10) 0%, rgba(124, 92, 255, 0.10) 100%);
+  --gradient-electric: linear-gradient(135deg, #2E7DFF 0%, #7C5CFF 100%);
+  --gradient-card-hover: linear-gradient(180deg, rgba(46, 125, 255, 0.08) 0%, rgba(124, 92, 255, 0.08) 100%);
+
+  /* ── Promo tints — azure/violet glass on dark ─────────────────────── */
+  --promo-bg-blue: rgba(46, 125, 255, 0.12);
+  --promo-bg-warm: rgba(124, 92, 255, 0.12);
+  --promo-bg-green: rgba(62, 213, 152, 0.10);
+  --promo-bg-purple: rgba(124, 92, 255, 0.14);
+  --promo-bg-pink: rgba(255, 88, 118, 0.10);
+
+  /* ── Tailwind @theme tokens — override light-theme names on dark ────── */
+  --color-bone: #0B0E14;
+  --color-paper: #141821;
+  --color-cream: #1B2030;
+  --color-surface: #141821;
+
+  --color-ink: #EDF1F5;
+  --color-ink-2: #8A94A6;
+  --color-ink-3: #5A6478;
+
+  --color-line: #232A36;
+  --color-line-strong: #3A4358;
+
+  --color-success-tint: rgba(62, 213, 152, 0.16);
+  --color-warning-tint: rgba(245, 197, 67, 0.14);
+  --color-danger-tint: rgba(255, 88, 118, 0.14);
+}
+
+/* ── Dark-theme photo tone smoothing — nudge stark whites so product
+   photography reads as calibrated on the deep canvas. Additive only. */
+[data-theme="dark"] img[src*=".jpg"],
+[data-theme="dark"] img[src*=".jpeg"],
+[data-theme="dark"] img[src*=".png"],
+[data-theme="dark"] img[src*=".webp"],
+.dark img[src*=".jpg"],
+.dark img[src*=".jpeg"],
+.dark img[src*=".png"],
+.dark img[src*=".webp"] {
+  filter: brightness(0.96) contrast(1.02);
+}
