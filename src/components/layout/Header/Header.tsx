@@ -1,17 +1,46 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  type ReactNode,
+} from "react";
 import NextLink from "next/link";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Link } from "@/i18n/routing";
 import {
-  ShoppingBag, Search, Menu, X, User as UserIcon, UserRound, Shield,
-  ChevronLeft, ChevronRight, ChevronDown, Heart, Bell,
-  Shirt, Layers, PersonStanding, Baby,
-  Waves, Footprints, Tag, Leaf, Package, Sparkles, Ruler,
-  Sun, Flame, Wind, Award, Trophy, Zap, Palette, Scissors,
-  Droplets, Gift, Star, Move, Dumbbell, Triangle, LayoutGrid,
+  ShoppingCart,
+  Search,
+  Menu,
+  X,
+  User as UserIcon,
+  Shield,
+  ChevronDown,
+  ChevronRight,
+  Heart,
+  Bell,
+  Package,
+  MapPin,
+  HelpCircle,
+  Truck,
+  GitCompare,
+  LayoutGrid,
+  Headphones,
+  Cpu,
+  Smartphone,
+  Monitor,
+  Gamepad2,
+  Keyboard,
+  Camera,
+  Printer,
+  Zap,
+  Sparkles,
+  ArrowRight,
+  Trash2,
 } from "lucide-react";
 import { useCart } from "@/providers/CartProvider";
 import { useAuth } from "@/providers/AuthProvider";
@@ -19,7 +48,6 @@ import { ThemeToggle } from "./ThemeToggle";
 import { AnimatePresence, motion } from "framer-motion";
 import { ElectreiaLogo } from "../ElectreiaLogo";
 import { CurrencySwitcher } from "./CurrencySwitcher";
-import { CatalogMenu } from "../CatalogMenu/CatalogMenu";
 
 interface Category {
   id: string;
@@ -29,716 +57,804 @@ interface Category {
   children?: Category[];
 }
 
-function subtreeCount(cat: Category): number {
-  const own = cat._count?.products || 0;
-  return own + (cat.children || []).reduce((s, c) => s + subtreeCount(c), 0);
-}
-
 /**
- * Flatten the tree into a single list (excluding roots that have 0 own
- * products) then sort by subtree size — this lets us blend top departments
- * and their most-populated subcategories into a single dense strip.
+ * Electronics department taxonomy — the 8 departments we group the leaf
+ * categories under. Icons + accent copy are hand-picked. When live category
+ * data comes back from /api/categories we cross-reference by slug so counts
+ * and children stay in sync with the DB.
  */
-function flattenForStrip(cats: Category[]): Category[] {
-  const acc: Category[] = [];
-  const walk = (list: Category[]) => {
-    for (const c of list) {
-      acc.push(c);
-      if (c.children?.length) walk(c.children);
-    }
-  };
-  walk(cats);
-  return acc.sort((a, b) => subtreeCount(b) - subtreeCount(a));
-}
-
-function collectAllSubcategories(cats: Category[]): Category[] {
-  const acc: Category[] = [];
-  const walk = (list: Category[]) => {
-    for (const c of list) {
-      if (c.children?.length) walk(c.children);
-      else acc.push(c);
-    }
-  };
-  walk(cats);
-  return acc.sort((a, b) => subtreeCount(b) - subtreeCount(a));
-}
-
-/**
- * One distinctive icon per category slug — hand-picked so no two adjacent
- * categories in the strip repeat the same glyph.
- */
-const SLUG_ICONS: Record<string, React.ElementType> = {
-  // Top-level departments
-  men: UserIcon,
-  women: UserRound,
-  kids: Baby,
-  accessories: Tag,
-
-  // Level 2 subcategories
-  "men-bottoms": Footprints,
-  "men-sweatshirts": Layers,
-  "men-t-shirts": Shirt,
-  "women-bottoms": Ruler,
-  "women-swimwear": Waves,
-  "women-t-shirts": Shirt,
-  "kids-all-over-shirts": Palette,
-  "kids-hoodies-sweatshirts": Layers,
-  "kids-t-shirts": Shirt,
-
-  // Level 3 — Men Bottoms
-  "men-bottoms-sweatpants": Footprints,
-  "men-bottoms-shorts": Sun,
-  "men-bottoms-leggings": Dumbbell,
-  "men-bottoms-swim-trunks": Waves,
-  "men-bottoms-trousers": Move,
-
-  // Level 3 — Men T-shirts
-  "men-t-shirts-jerseys": Trophy,
-  "men-t-shirts-athletic": Zap,
-  "men-t-shirts-graphic": Palette,
-  "men-t-shirts-all-over": Sparkles,
-  "men-t-shirts-long-sleeve": Wind,
-  "men-t-shirts-tanks": Sun,
-  "men-t-shirts-polos": Award,
-
-  // Level 3 — Men Sweatshirts
-  "men-sweatshirts-hoodies": Layers,
-  "men-sweatshirts-zip-hoodies": Layers,
-  "men-sweatshirts-crewnecks": UserRound,
-  "men-sweatshirts-performance": Zap,
-
-  // Level 3 — Women Bottoms
-  "women-bottoms-leggings": Dumbbell,
-  "women-bottoms-sweatpants": Footprints,
-  "women-bottoms-shorts": Sun,
-  "women-bottoms-skirts": Wind,
-  "women-bottoms-trousers": Move,
-
-  // Level 3 — Women T-shirts
-  "women-t-shirts-crop": Scissors,
-  "women-t-shirts-sports-bras": Heart,
-  "women-t-shirts-tanks": Sun,
-  "women-t-shirts-long-sleeve": Wind,
-  "women-t-shirts-v-neck": Triangle,
-  "women-t-shirts-polos": Award,
-  "women-t-shirts-athletic": Zap,
-  "women-t-shirts-all-over": Sparkles,
-
-  // Level 3 — Women Swimwear
-  "women-swimwear-bikinis": Waves,
-  "women-swimwear-one-piece": Droplets,
-  "women-swimwear-cover-ups": Sun,
-  "women-swimwear-shorts": Waves,
-
-  // Level 3 — Kids Hoodies
-  "kids-hoodies-youth": Star,
-  "kids-hoodies-toddler": Baby,
-  "kids-hoodies-zip": Layers,
-
-  // Level 3 — Kids T-shirts
-  "kids-t-shirts-youth": Star,
-  "kids-t-shirts-toddler": Baby,
-  "kids-t-shirts-baby": Gift,
-  "kids-t-shirts-long-sleeve": Wind,
-  "kids-t-shirts-all-over": Sparkles,
-};
-
-const ICON_RULES: { kw: string; icon: React.ElementType }[] = [
-  { kw: "bikini", icon: Waves },
-  { kw: "swim", icon: Waves },
-  { kw: "beach", icon: Waves },
-  { kw: "trunk", icon: Waves },
-  { kw: "cover", icon: Sun },
-  { kw: "one-piece", icon: Droplets },
-  { kw: "sports bra", icon: Heart },
-  { kw: "bralette", icon: Heart },
-  { kw: "bustier", icon: Heart },
-  { kw: "crop", icon: Scissors },
-  { kw: "v-neck", icon: Triangle },
-  { kw: "long sleeve", icon: Wind },
-  { kw: "long-sleeve", icon: Wind },
-  { kw: "tank", icon: Sun },
-  { kw: "polo", icon: Award },
-  { kw: "jersey", icon: Trophy },
-  { kw: "athletic", icon: Zap },
-  { kw: "performance", icon: Zap },
-  { kw: "compression", icon: Zap },
-  { kw: "graphic", icon: Palette },
-  { kw: "all-over", icon: Sparkles },
-  { kw: "all over", icon: Sparkles },
-  { kw: "print", icon: Palette },
-  { kw: "hoodie", icon: Layers },
-  { kw: "crewneck", icon: UserRound },
-  { kw: "crew neck", icon: UserRound },
-  { kw: "crew", icon: UserRound },
-  { kw: "sweatshirt", icon: Layers },
-  { kw: "sweater", icon: Layers },
-  { kw: "jumper", icon: Layers },
-  { kw: "pullover", icon: Layers },
-  { kw: "t-shirt", icon: Shirt },
-  { kw: "tshirt", icon: Shirt },
-  { kw: "tee", icon: Shirt },
-  { kw: "shirt", icon: Shirt },
-  { kw: "top", icon: Shirt },
-  { kw: "legging", icon: Dumbbell },
-  { kw: "sweatpant", icon: Footprints },
-  { kw: "jogger", icon: Footprints },
-  { kw: "short", icon: Sun },
-  { kw: "trouser", icon: Move },
-  { kw: "pants", icon: Move },
-  { kw: "bottom", icon: Footprints },
-  { kw: "skirt", icon: Wind },
-  { kw: "dress", icon: Ruler },
-  { kw: "youth", icon: Star },
-  { kw: "toddler", icon: Baby },
-  { kw: "baby", icon: Gift },
-  { kw: "kids", icon: Baby },
-  { kw: "ladies", icon: UserRound },
-  { kw: "women", icon: UserRound },
-  { kw: "men", icon: UserIcon },
-  { kw: "accessor", icon: Tag },
-  { kw: "sale", icon: Tag },
-  { kw: "outlet", icon: Tag },
-  { kw: "new", icon: Sparkles },
-  { kw: "trending", icon: Flame },
-  { kw: "sustainable", icon: Leaf },
-  { kw: "organic", icon: Leaf },
-  { kw: "eco", icon: Leaf },
+const DEPARTMENTS: Array<{
+  slug: string;
+  name: string;
+  short: string;
+  Icon: React.ElementType;
+  tagline: string;
+  featured: { label: string; slug: string }[];
+  promo: { title: string; subtitle: string; href: string; badge: string };
+}> = [
+  {
+    slug: "audio-headphones",
+    name: "Audio & Headphones",
+    short: "Audio",
+    Icon: Headphones,
+    tagline: "Studio-grade cans, IEMs & speakers",
+    featured: [
+      { label: "Over-ear headphones", slug: "headphones" },
+      { label: "Gaming headsets", slug: "headsets" },
+      { label: "Microphones", slug: "microphones" },
+    ],
+    promo: {
+      title: "Reference Series",
+      subtitle: "Studio monitors on trade-in",
+      href: "/catalog/audio-headphones",
+      badge: "Save up to £400",
+    },
+  },
+  {
+    slug: "laptops-computers",
+    name: "Laptops & Computers",
+    short: "Laptops",
+    Icon: Cpu,
+    tagline: "Silicon-native laptops, desktops & CPUs",
+    featured: [
+      { label: "Ultra-portable notebooks", slug: "notebooks" },
+      { label: "Desktop workstations", slug: "desktop-computers" },
+      { label: "CPUs", slug: "cpu" },
+    ],
+    promo: {
+      title: "Pro 14 Series",
+      subtitle: "M-series · 32GB · sub-1kg",
+      href: "/catalog/laptops-computers",
+      badge: "0% finance",
+    },
+  },
+  {
+    slug: "smartphones-tablets",
+    name: "Smartphones & Tablets",
+    short: "Mobile",
+    Icon: Smartphone,
+    tagline: "Flagship phones & pro tablets",
+    featured: [
+      { label: "Flagship smartphones", slug: "smartphones" },
+      { label: "Pro tablets", slug: "tablets" },
+    ],
+    promo: {
+      title: "Trade in, level up",
+      subtitle: "Get up to £700 credit",
+      href: "/catalog/smartphones-tablets",
+      badge: "Trade-in",
+    },
+  },
+  {
+    slug: "displays-monitors",
+    name: "Displays & Monitors",
+    short: "Displays",
+    Icon: Monitor,
+    tagline: "4K IPS, ultrawide & gaming panels",
+    featured: [
+      { label: "Ultrawide", slug: "monitors" },
+      { label: "Gaming monitors", slug: "monitors" },
+      { label: "Home office", slug: "monitors" },
+    ],
+    promo: {
+      title: "OLED calibrated",
+      subtitle: "Colour-accurate panels for pros",
+      href: "/catalog/displays-monitors",
+      badge: "New",
+    },
+  },
+  {
+    slug: "gaming-consoles",
+    name: "Gaming & Consoles",
+    short: "Gaming",
+    Icon: Gamepad2,
+    tagline: "Consoles, controllers & VR",
+    featured: [{ label: "Consoles", slug: "consoles" }],
+    promo: {
+      title: "Console bundles",
+      subtitle: "Free game + extra pad",
+      href: "/catalog/gaming-consoles",
+      badge: "Bundle",
+    },
+  },
+  {
+    slug: "peripherals",
+    name: "Peripherals",
+    short: "Peripherals",
+    Icon: Keyboard,
+    tagline: "Mechanical boards, mice & desk gear",
+    featured: [
+      { label: "Keyboards", slug: "keyboards" },
+      { label: "Mice", slug: "mouse-devices" },
+    ],
+    promo: {
+      title: "Deskmate deals",
+      subtitle: "Build the setup",
+      href: "/catalog/peripherals",
+      badge: "Save 20%",
+    },
+  },
+  {
+    slug: "cameras-drones",
+    name: "Cameras & Drones",
+    short: "Cameras",
+    Icon: Camera,
+    tagline: "Mirrorless, cinema drones, gimbals",
+    featured: [{ label: "Drones", slug: "drones" }],
+    promo: {
+      title: "Aerial cinema",
+      subtitle: "Pro drones with LiDAR",
+      href: "/catalog/cameras-drones",
+      badge: "Pro",
+    },
+  },
+  {
+    slug: "printers-office",
+    name: "Printers & Office",
+    short: "Office",
+    Icon: Printer,
+    tagline: "Laser, MFP, home office",
+    featured: [{ label: "Printers", slug: "printers" }],
+    promo: {
+      title: "Business bundles",
+      subtitle: "Printer + toner starter",
+      href: "/catalog/printers-office",
+      badge: "B2B",
+    },
+  },
 ];
 
-function getIconForCategory(slug: string, name: string) {
-  const bySlug = SLUG_ICONS[slug];
-  if (bySlug) return bySlug;
-  const lower = name.toLowerCase();
-  for (const { kw, icon } of ICON_RULES) {
-    if (lower.includes(kw)) return icon;
-  }
-  return Package;
-}
-
-/**
- * Build a slug → top-level department name map so we can prefix ambiguous
- * child labels (e.g. three "T-shirts" siblings become "Men T-shirts",
- * "Women T-shirts", "Kids T-shirts").
- */
-function buildDeptMap(cats: Category[]): Map<string, string> {
-  const map = new Map<string, string>();
-  const walk = (list: Category[], dept: string) => {
-    for (const c of list) {
-      map.set(c.slug, dept);
-      if (c.children?.length) walk(c.children, dept);
-    }
-  };
-  for (const top of cats) walk(top.children || [], top.name);
-  return map;
-}
-
-const LABEL_OVERRIDES: { pattern: RegExp; label: string }[] = [
-  { pattern: /^hoodies?\s?&\s?sweatshirts?$/i, label: "Hoodies" },
-  { pattern: /^all-over shirts?$/i, label: "All-over prints" },
-  { pattern: /^one-piece$/i, label: "One-Piece" },
+const SEARCH_SCOPES = [
+  { value: "all", label: "All departments" },
+  ...DEPARTMENTS.map((d) => ({ value: d.slug, label: d.short })),
 ];
 
-function shortenCategoryLabel(name: string, max = 22): string {
-  for (const { pattern, label } of LABEL_OVERRIDES) {
-    if (pattern.test(name)) return label;
-  }
-  if (name.length <= max) return name;
-  return name.slice(0, max - 1).trimEnd() + "…";
-}
-
-/**
- * Curated 24-slot numbered navigation broken into 3 pages of 8, chosen from
- * real DB categories (verified populations in the current catalog). Rotates
- * with a smooth crossfade every ~5s. Pauses when megamenu / mobile drawer
- * is open so users can act on what they're looking at.
- */
-const NAV_PAGES: { label: string; href: string }[][] = [
-  // Page 1 · Departments & marketing shortcuts
-  [
-    { label: "Women",     href: "/catalog/women" },
-    { label: "Men",       href: "/catalog/men" },
-    { label: "Kids",      href: "/catalog/kids" },
-    { label: "Sale",      href: "/catalog?onSale=true" },
-    { label: "New in",    href: "/catalog?sort=newest" },
-    { label: "Swim",      href: "/catalog/women-swimwear" },
-    { label: "Hoodies",   href: "/catalog/kids-hoodies-sweatshirts" },
-    { label: "Bikinis",   href: "/catalog/women-swimwear-bikinis" },
-  ],
-  // Page 2 · Bestselling subcategories
-  [
-    { label: "T-shirts",     href: "/catalog/women-t-shirts" },
-    { label: "Sweatshirts",  href: "/catalog/men-sweatshirts" },
-    { label: "Crewnecks",    href: "/catalog/men-sweatshirts-crewnecks" },
-    { label: "Bottoms",      href: "/catalog/women-bottoms" },
-    { label: "Youth Tees",   href: "/catalog/kids-t-shirts-youth" },
-    { label: "Athletic",     href: "/catalog/men-t-shirts-athletic" },
-    { label: "Jerseys",      href: "/catalog/men-t-shirts-jerseys" },
-    { label: "Shorts",       href: "/catalog/women-bottoms-shorts" },
-  ],
-  // Page 3 · Niche & discovery
-  [
-    { label: "Leggings",     href: "/catalog/women-bottoms-leggings" },
-    { label: "Crop Tops",    href: "/catalog/women-t-shirts-crop" },
-    { label: "Skirts",       href: "/catalog/women-bottoms-skirts" },
-    { label: "One-Piece",    href: "/catalog/women-swimwear-one-piece" },
-    { label: "Swim Trunks",  href: "/catalog/men-bottoms-swim-trunks" },
-    { label: "V-Neck",       href: "/catalog/women-t-shirts-v-neck" },
-    { label: "Baby Tees",    href: "/catalog/kids-t-shirts-baby" },
-    { label: "Graphic Tees", href: "/catalog/men-t-shirts-graphic" },
-  ],
+const ROTATING_PROMOS = [
+  { icon: Truck, text: "Free UK delivery on orders over £100" },
+  { icon: Package, text: "Same-day dispatch — order before 14:00 GMT" },
+  { icon: Zap, text: "0% interest financing available at checkout" },
+  { icon: Sparkles, text: "Trade in your old device — up to £700 credit" },
 ];
 
-function NumberedNavRotator({ paused }: { paused: boolean }) {
-  const [page, setPage] = useState(0);
-  const [hover, setHover] = useState(false);
-  const active = paused || hover;
-
-  useEffect(() => {
-    if (active) return;
-    const t = setInterval(() => {
-      setPage((p) => (p + 1) % NAV_PAGES.length);
-    }, 5000);
-    return () => clearInterval(t);
-  }, [active]);
-
-  const items = NAV_PAGES[page];
-  const baseIndex = page * 8;
-
-  return (
-    <div
-      className="hidden border-b border-[color:var(--color-line)] bg-[color:var(--color-bg-secondary)] md:block"
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      <div className="relative mx-auto flex h-12 max-w-[var(--container-content)] items-center px-4 sm:px-6 lg:px-8">
-        {/* Left ambient chevron indicator */}
-        <button
-          type="button"
-          aria-label="Previous categories"
-          onClick={() => setPage((p) => (p - 1 + NAV_PAGES.length) % NAV_PAGES.length)}
-          className="absolute left-2 z-10 hidden h-6 w-6 items-center justify-center rounded-full text-[color:var(--color-text-tertiary)] transition-colors hover:bg-[color:var(--color-bg-elevated)] hover:text-[color:var(--color-primary)] lg:inline-flex"
-        >
-          <ChevronLeft size={12} />
-        </button>
-
-        <div className="relative mx-auto flex h-full w-full items-center justify-center overflow-hidden">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={page}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-wrap items-center justify-center gap-x-7 gap-y-1 lg:gap-x-9"
-            >
-              {items.map((item, i) => (
-                <Link
-                  key={`${page}-${item.href}-${i}`}
-                  href={item.href}
-                  className="group inline-flex items-center gap-1.5 text-[color:var(--color-text)] transition-colors hover:text-[color:var(--color-primary)]"
-                >
-                  <span className="font-mono text-[10px] font-semibold tabular-nums tracking-widest text-[color:var(--color-text-tertiary)] group-hover:text-[color:var(--color-primary)]">
-                    {String(baseIndex + i + 1).padStart(2, "0")}
-                  </span>
-                  <span className="whitespace-nowrap font-serif text-[13px] font-medium tracking-tight lg:text-[14px]">
-                    {item.label}
-                  </span>
-                </Link>
-              ))}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* Right ambient chevron + page dots */}
-        <div className="absolute right-2 z-10 hidden items-center gap-2 lg:flex">
-          <div className="flex items-center gap-1">
-            {NAV_PAGES.map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                aria-label={`Show page ${i + 1}`}
-                onClick={() => setPage(i)}
-                className={`h-1 rounded-full transition-all ${
-                  i === page
-                    ? "w-4 bg-[color:var(--color-primary)]"
-                    : "w-1 bg-[color:var(--color-line-strong)] hover:bg-[color:var(--color-primary)]/60"
-                }`}
-              />
-            ))}
-          </div>
-          <button
-            type="button"
-            aria-label="Next categories"
-            onClick={() => setPage((p) => (p + 1) % NAV_PAGES.length)}
-            className="inline-flex h-6 w-6 items-center justify-center rounded-full text-[color:var(--color-text-tertiary)] transition-colors hover:bg-[color:var(--color-bg-elevated)] hover:text-[color:var(--color-primary)]"
-          >
-            <ChevronRight size={12} />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/**
- * Horizontal strip with left/right scroll arrows that appear only when
- * there's overflow in that direction. Native scrollbar stays hidden.
- */
-function CategoryStrip({
-  children,
-  containerBg,
-  ariaLabel,
-}: {
-  children: ReactNode;
-  containerBg: string;
-  ariaLabel?: string;
-}) {
+function useDropdownDismiss(onClose: () => void) {
   const ref = useRef<HTMLDivElement>(null);
-  const [canPrev, setCanPrev] = useState(false);
-  const [canNext, setCanNext] = useState(false);
-
-  const update = useCallback(() => {
-    const el = ref.current;
-    if (!el) return;
-    setCanPrev(el.scrollLeft > 4);
-    setCanNext(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
-  }, []);
-
   useEffect(() => {
-    update();
-    const el = ref.current;
-    if (!el) return;
-    el.addEventListener("scroll", update, { passive: true });
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
+    function onDoc(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    }
+    function onEsc(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onEsc);
     return () => {
-      el.removeEventListener("scroll", update);
-      ro.disconnect();
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onEsc);
     };
-  }, [update]);
-
-  const scrollByAmount = (dir: -1 | 1) => {
-    const el = ref.current;
-    if (!el) return;
-    el.scrollBy({ left: dir * el.clientWidth * 0.75, behavior: "smooth" });
-  };
-
-  return (
-    <div className="relative">
-      <div
-        ref={ref}
-        role="region"
-        aria-label={ariaLabel}
-        className="scrollbar-none overflow-x-auto scroll-smooth"
-      >
-        {children}
-      </div>
-
-      {/* Left fade + arrow */}
-      <div
-        aria-hidden
-        className={`pointer-events-none absolute inset-y-0 left-0 w-14 transition-opacity ${
-          canPrev ? "opacity-100" : "opacity-0"
-        }`}
-        style={{ background: `linear-gradient(90deg, ${containerBg} 15%, transparent 100%)` }}
-      />
-      <button
-        type="button"
-        onClick={() => scrollByAmount(-1)}
-        aria-label="Scroll categories left"
-        className={`absolute left-2 top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text)] shadow-sm transition-all hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)] md:inline-flex ${
-          canPrev ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
-      >
-        <ChevronLeft size={16} />
-      </button>
-
-      {/* Right fade + arrow */}
-      <div
-        aria-hidden
-        className={`pointer-events-none absolute inset-y-0 right-0 w-14 transition-opacity ${
-          canNext ? "opacity-100" : "opacity-0"
-        }`}
-        style={{ background: `linear-gradient(270deg, ${containerBg} 15%, transparent 100%)` }}
-      />
-      <button
-        type="button"
-        onClick={() => scrollByAmount(1)}
-        aria-label="Scroll categories right"
-        className={`absolute right-2 top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text)] shadow-sm transition-all hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)] md:inline-flex ${
-          canNext ? "opacity-100" : "pointer-events-none opacity-0"
-        }`}
-      >
-        <ChevronRight size={16} />
-      </button>
-    </div>
-  );
+  }, [onClose]);
+  return ref;
 }
-
-const topBarBase =
-  "bg-[color:var(--color-primary)] text-[color:var(--color-primary-fg)] dark:bg-[color:var(--color-header)]";
-const utilityLink =
-  "inline-flex items-center text-[12px] font-medium tracking-wide text-white/80 transition-colors hover:text-white";
 
 export function Header() {
   const t = useTranslations("nav");
   const router = useRouter();
-  const { itemCount, cartBounce } = useCart();
+  const { itemCount, cartBounce, items, subtotal, removeItem } = useCart();
   const { user, role } = useAuth();
+
+  const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [activeDept, setActiveDept] = useState<string>(DEPARTMENTS[0].slug);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [miniCartOpen, setMiniCartOpen] = useState(false);
+  const [scope, setScope] = useState<string>("all");
+  const [scopeOpen, setScopeOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [promoIdx, setPromoIdx] = useState(0);
   const [categories, setCategories] = useState<Category[]>([]);
-  const megaRef = useRef<HTMLButtonElement>(null);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [searchFocus, setSearchFocus] = useState(false);
+  const [mobileAcc, setMobileAcc] = useState<string | null>(null);
 
+  const megaRef = useRef<HTMLDivElement>(null);
+  const accountRef = useRef<HTMLDivElement>(null);
+  const cartRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // — Scroll condensing
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
+    const onScroll = () => setScrolled(window.scrollY > 24);
     window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // — Mobile drawer lock
   useEffect(() => {
-    if (mobileOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => {
       document.body.style.overflow = "";
-    }
-    return () => { document.body.style.overflow = ""; };
+    };
   }, [mobileOpen]);
 
+  // — Rotating promo
+  useEffect(() => {
+    const t = setInterval(
+      () => setPromoIdx((p) => (p + 1) % ROTATING_PROMOS.length),
+      4500,
+    );
+    return () => clearInterval(t);
+  }, []);
+
+  // — Live categories
   useEffect(() => {
     fetch("/api/categories")
       .then((r) => r.json())
-      .then((data) => { if (Array.isArray(data)) setCategories(data); })
+      .then((data) => {
+        if (Array.isArray(data)) setCategories(data);
+      })
       .catch(() => {});
   }, []);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/en/search?q=${encodeURIComponent(searchQuery.trim())}`);
+  // — Recent searches
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("electreia-recent-search");
+      if (raw) setRecentSearches(JSON.parse(raw));
+    } catch {
+      /* noop */
     }
+  }, []);
+
+  const pushRecent = (q: string) => {
+    setRecentSearches((prev) => {
+      const next = [q, ...prev.filter((v) => v !== q)].slice(0, 6);
+      try {
+        localStorage.setItem("electreia-recent-search", JSON.stringify(next));
+      } catch {
+        /* noop */
+      }
+      return next;
+    });
   };
 
-  // Level 3 chip strip: top departments blended with their strongest sub-cats.
-  const topLevel = [...categories].sort((a, b) => subtreeCount(b) - subtreeCount(a));
-  const strongestSubs = flattenForStrip(categories)
-    .filter((c) => !topLevel.some((t) => t.id === c.id))
-    .slice(0, 18);
-  const topStripCategories = [...topLevel, ...strongestSubs].slice(0, 20);
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    pushRecent(q);
+    const scopePath = scope === "all" ? "" : `&category=${scope}`;
+    router.push(`/en/search?q=${encodeURIComponent(q)}${scopePath}`);
+    setSearchFocus(false);
+  };
 
-  // Level 4 trending strip: 25 densest leaf/sub categories across whole tree.
-  const trendingSubs = collectAllSubcategories(categories).slice(0, 25);
+  const findLiveDept = (slug: string) =>
+    categories.find((c) => c.slug === slug);
+  const activeDeptData = DEPARTMENTS.find((d) => d.slug === activeDept)!;
+  const activeDeptLive = findLiveDept(activeDept);
 
-  // Disambiguate labels when a base name repeats across departments —
-  // e.g. Men/Women/Kids each have "T-shirts" → "Men T-shirts" etc.
-  const deptMap = buildDeptMap(categories);
-  const nameCountLevel3 = new Map<string, number>();
-  for (const c of topStripCategories) {
-    const key = c.name.toLowerCase();
-    nameCountLevel3.set(key, (nameCountLevel3.get(key) ?? 0) + 1);
-  }
-  const nameCountLevel4 = new Map<string, number>();
-  for (const c of trendingSubs) {
-    const key = c.name.toLowerCase();
-    nameCountLevel4.set(key, (nameCountLevel4.get(key) ?? 0) + 1);
-  }
-  const labelFor = (
-    cat: Category,
-    countMap: Map<string, number>,
-    max = 22,
-  ): string => {
-    const base = shortenCategoryLabel(cat.name, max);
-    const isTopLevel = topLevel.some((t) => t.id === cat.id);
-    if (isTopLevel) return base;
-    const dept = deptMap.get(cat.slug);
-    const isDuplicate = (countMap.get(cat.name.toLowerCase()) ?? 0) > 1;
-    if (dept && isDuplicate) return `${dept} ${base}`;
-    return base;
+  const openMega = () => {
+    if (hoverTimer.current) clearTimeout(hoverTimer.current);
+    setMegaOpen(true);
+  };
+  const closeMegaSoon = () => {
+    if (hoverTimer.current) clearTimeout(hoverTimer.current);
+    hoverTimer.current = setTimeout(() => setMegaOpen(false), 120);
+  };
+
+  const megaDismissRef = useDropdownDismiss(() => setMegaOpen(false));
+  const accountDismissRef = useDropdownDismiss(() => setAccountOpen(false));
+  const cartDismissRef = useDropdownDismiss(() => setMiniCartOpen(false));
+  const searchDismissRef = useDropdownDismiss(() => {
+    setScopeOpen(false);
+    setSearchFocus(false);
+  });
+
+  const productCountForDept = (slug: string) => {
+    const live = findLiveDept(slug);
+    if (live) return live._count?.products ?? 0;
+    return 0;
   };
 
   return (
     <>
       <header
-        className={`sticky top-0 z-40 w-full border-b border-[color:var(--color-line)] bg-[color:var(--color-bg)]/95 backdrop-blur-md transition-shadow ${
-          scrolled ? "shadow-[0_1px_0_0_var(--color-line)]" : ""
-        }`}
+        className={[
+          "sticky top-0 z-40 w-full transition-shadow duration-300",
+          "border-b border-[color:var(--color-line)]",
+          "bg-[color:var(--color-bg)]/95 backdrop-blur-xl",
+          scrolled
+            ? "shadow-[0_1px_0_0_var(--color-line)]"
+            : "shadow-none",
+        ].join(" ")}
+        role="banner"
       >
-        {/* Level 1 — Top utility bar */}
-        <div className={topBarBase}>
+        {/* ── Tier 1 · Utility strip (collapses on scroll) ─────────────── */}
+        <div
+          className={[
+            "overflow-hidden bg-[color:var(--color-header)] text-[color:var(--color-primary-fg)] transition-[max-height,opacity] duration-300",
+            scrolled ? "max-h-0 opacity-0" : "max-h-9 opacity-100",
+          ].join(" ")}
+          aria-hidden={scrolled}
+        >
           <div className="mx-auto flex h-9 max-w-[var(--container-content)] items-center justify-between px-4 sm:px-6 lg:px-8">
-            <nav className="flex items-center gap-4 sm:gap-5">
-              <Link href="/catalog" className={`${utilityLink} !text-white`}>
-                Shopping
+            <div className="flex items-center gap-4 text-white/85">
+              <Link
+                href="/contact"
+                className="inline-flex items-center gap-1.5 text-[11px] font-medium tracking-wide transition-colors hover:text-white"
+              >
+                <HelpCircle size={12} /> Help centre
               </Link>
-              <span aria-hidden className="h-3 w-px bg-white/20" />
-              <Link href="/about" className={utilityLink}>
-                About
+              <span className="h-3 w-px bg-white/20" />
+              <Link
+                href="/account/orders"
+                className="inline-flex items-center gap-1.5 text-[11px] font-medium tracking-wide transition-colors hover:text-white"
+              >
+                <Package size={12} /> Track order
               </Link>
-              <span aria-hidden className="h-3 w-px bg-white/20" />
-              <Link href="/contact" className={utilityLink}>
-                Contact
+              <span className="hidden h-3 w-px bg-white/20 sm:inline-block" />
+              <Link
+                href="/contact"
+                className="hidden items-center gap-1.5 text-[11px] font-medium tracking-wide transition-colors hover:text-white sm:inline-flex"
+              >
+                <MapPin size={12} /> Store & stock
               </Link>
-              <span aria-hidden className="h-3 w-px bg-white/20 hidden sm:inline-block" />
-              <Link href="/catalog?onSale=true" className={`${utilityLink} hidden sm:inline-flex`}>
-                Sale
-              </Link>
-            </nav>
+            </div>
+
+            {/* Center — rotating shipping / promo message */}
+            <div className="pointer-events-none absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 text-[11px] font-medium tracking-wide text-white/85 md:inline-flex">
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={promoIdx}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.25 }}
+                  className="inline-flex items-center gap-1.5"
+                >
+                  {(() => {
+                    const P = ROTATING_PROMOS[promoIdx];
+                    return (
+                      <>
+                        <P.icon size={12} className="text-[color:var(--color-primary)]" />
+                        <span>{P.text}</span>
+                      </>
+                    );
+                  })()}
+                </motion.span>
+              </AnimatePresence>
+            </div>
+
             <div className="flex items-center gap-2 text-white">
-              <span className="hidden font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-white/70 sm:inline">
-                Free UK shipping · £100+
-              </span>
-              <span aria-hidden className="hidden h-3 w-px bg-white/20 sm:inline-block" />
               <ThemeToggle />
+              <span className="hidden h-3 w-px bg-white/20 sm:inline-block" />
               <CurrencySwitcher />
+              <span className="hidden h-3 w-px bg-white/20 sm:inline-block" />
+              <span className="hidden font-mono text-[10px] uppercase tracking-[0.16em] text-white/70 sm:inline">
+                EN · GBP
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Level 2 — Branding row (centered wordmark, editorial masthead) */}
+        {/* ── Tier 2 · Main bar (logo · search · account/compare/wishlist/cart) ── */}
         <div className="border-b border-[color:var(--color-line)] bg-[color:var(--color-bg)]">
-          <div className="mx-auto flex max-w-[var(--container-content)] items-center justify-center gap-4 px-4 py-4 sm:py-5 lg:py-6">
-            <span aria-hidden className="hidden h-px w-8 shrink-0 bg-[color:var(--color-line-strong)] lg:block" />
+          <div className="mx-auto flex max-w-[var(--container-content)] items-center gap-4 px-4 py-3 sm:px-6 lg:gap-6 lg:px-8">
+            {/* Logo */}
             <Link
               href="/"
-              className="flex flex-col items-center text-[color:var(--color-text)]"
+              className="shrink-0 text-[color:var(--color-text)]"
               aria-label="Electreia"
             >
-              <ElectreiaLogo size={30} />
-              <span className="mt-1.5 text-[9px] font-semibold uppercase tracking-[0.32em] text-[color:var(--color-text-tertiary)] sm:mt-2 sm:text-[10px]">
-                est. 2026 · United Kingdom
-              </span>
+              <ElectreiaLogo size={scrolled ? 22 : 26} />
             </Link>
-            <span aria-hidden className="hidden h-px w-8 shrink-0 bg-[color:var(--color-line-strong)] lg:block" />
-          </div>
-        </div>
 
-        {/* Level 3 — Functional bar: filled catalog + full-width search + actions */}
-        <div className="border-b border-[color:var(--color-line)] bg-[color:var(--color-bg)]">
-          <div className="mx-auto flex h-16 max-w-[var(--container-content)] items-center gap-3 px-4 sm:px-6 lg:h-[68px] lg:gap-4 lg:px-8">
-            {/* Custom Catalog button — filled brand pill with grid icon + chevron */}
+            {/* Mobile menu trigger */}
             <button
-              className={`group inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-[12px] font-bold uppercase tracking-[0.18em] text-white shadow-sm transition-all hover:-translate-y-0.5 lg:px-5 lg:py-3 lg:text-[13px] ${
-                megaOpen
-                  ? "bg-[color:var(--color-accent)] shadow-md ring-2 ring-[color:var(--color-accent)]/30"
-                  : "bg-[color:var(--color-primary)] hover:bg-[color:var(--color-primary-hover)]"
-              }`}
-              onClick={() => setMegaOpen((v) => !v)}
-              aria-expanded={megaOpen}
-              aria-controls="catalog-dropdown"
-              ref={megaRef}
+              onClick={() => setMobileOpen(true)}
+              aria-label="Open menu"
+              className="ml-auto inline-flex h-10 w-10 items-center justify-center rounded-lg text-[color:var(--color-text)] hover:bg-[color:var(--color-bg-secondary)] lg:hidden"
             >
-              <LayoutGrid size={14} strokeWidth={2.5} className="shrink-0" />
-              <span className="hidden sm:inline">{t("catalog")}</span>
-              <ChevronDown
-                size={12}
-                strokeWidth={2.5}
-                className={`shrink-0 transition-transform ${megaOpen ? "rotate-180" : ""}`}
-              />
+              <Menu size={20} />
             </button>
 
-            {/* Search — full-width inline on desktop */}
-            <form
-              className="hidden h-11 min-w-0 flex-1 items-center rounded-full border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] pl-4 pr-1 transition-shadow focus-within:border-[color:var(--color-primary)] focus-within:shadow-[0_0_0_3px_var(--color-primary-tint)] md:flex"
-              onSubmit={handleSearch}
+            {/* High-intent search with scope dropdown */}
+            <div
+              ref={searchDismissRef}
+              className="relative hidden min-w-0 flex-1 lg:block"
             >
-              <Search size={15} className="text-[color:var(--color-text-tertiary)]" />
-              <input
-                type="text"
-                className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-sm text-[color:var(--color-text)] placeholder:text-[color:var(--color-text-tertiary)] focus:outline-none"
-                placeholder="Search laptops, headphones, cameras, smart home…"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <button
-                type="submit"
-                aria-label="Search"
-                className="inline-flex h-9 items-center justify-center rounded-full bg-[color:var(--color-primary)] px-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-white transition-colors hover:bg-[color:var(--color-primary-hover)]"
+              <form
+                onSubmit={handleSearch}
+                className={[
+                  "relative flex h-11 min-w-0 items-stretch overflow-hidden rounded-xl border bg-[color:var(--color-bg-elevated)] transition-all",
+                  searchFocus
+                    ? "border-[color:var(--color-primary)] shadow-[0_0_0_4px_var(--color-primary-tint)]"
+                    : "border-[color:var(--color-line)]",
+                ].join(" ")}
               >
-                Search
-              </button>
-            </form>
-
-            {/* Spacer for mobile — pushes actions right */}
-            <span className="flex-1 md:hidden" />
-
-            {/* Actions */}
-            <div className="flex items-center gap-1">
-              <Link
-                href="/search"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[color:var(--color-text-secondary)] transition-colors hover:bg-[color:var(--color-bg-secondary)] hover:text-[color:var(--color-primary)] md:hidden"
-                aria-label={t("search")}
-              >
-                <Search size={18} />
-              </Link>
-              {user && (
-                <Link
-                  href="/account/wishlist"
-                  className="hidden h-10 w-10 items-center justify-center rounded-full text-[color:var(--color-text-secondary)] transition-colors hover:bg-[color:var(--color-bg-secondary)] hover:text-[color:var(--color-primary)] lg:inline-flex"
-                  aria-label="Wishlist"
-                >
-                  <Heart size={18} />
-                </Link>
-              )}
-              {user && (
-                <Link
-                  href="/account/orders"
-                  className="relative hidden h-10 w-10 items-center justify-center rounded-full text-[color:var(--color-text-secondary)] transition-colors hover:bg-[color:var(--color-bg-secondary)] hover:text-[color:var(--color-primary)] lg:inline-flex"
-                  aria-label="Alerts"
-                >
-                  <Bell size={18} />
-                </Link>
-              )}
-              <Link
-                href={user ? "/account" : "/auth/login"}
-                className="hidden h-10 w-10 items-center justify-center rounded-full text-[color:var(--color-text-secondary)] transition-colors hover:bg-[color:var(--color-bg-secondary)] hover:text-[color:var(--color-primary)] md:inline-flex"
-                aria-label={user ? t("account") : t("login")}
-              >
-                <UserIcon size={18} />
-              </Link>
-              {user && (role === "ADMIN" || role === "SUPER_ADMIN") && (
-                <NextLink
-                  href="/admin"
-                  className="hidden h-10 w-10 items-center justify-center rounded-full text-[color:var(--color-text-secondary)] transition-colors hover:bg-[color:var(--color-bg-secondary)] hover:text-[color:var(--color-primary)] lg:inline-flex"
-                  aria-label="Admin"
-                >
-                  <Shield size={18} />
-                </NextLink>
-              )}
-              <Link
-                href="/cart"
-                className="relative inline-flex h-10 w-10 items-center justify-center rounded-full text-[color:var(--color-text-secondary)] transition-colors hover:bg-[color:var(--color-bg-secondary)] hover:text-[color:var(--color-primary)]"
-                aria-label={t("cart")}
-              >
-                <ShoppingBag size={18} />
-                {itemCount > 0 && (
-                  <motion.span
-                    key={cartBounce}
-                    className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[color:var(--color-accent)] px-1 text-[10px] font-bold text-white"
-                    initial={cartBounce > 0 ? { scale: 0.5 } : false}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", damping: 10, stiffness: 400 }}
+                {/* Scope selector */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    aria-haspopup="listbox"
+                    aria-expanded={scopeOpen}
+                    onClick={() => setScopeOpen((v) => !v)}
+                    className="inline-flex h-full items-center gap-1.5 border-r border-[color:var(--color-line)] bg-[color:var(--color-bg-secondary)] px-3 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-text-secondary)] hover:text-[color:var(--color-text)]"
                   >
-                    {itemCount > 99 ? "99+" : itemCount}
-                  </motion.span>
+                    <LayoutGrid size={13} className="text-[color:var(--color-primary)]" />
+                    <span className="max-w-[110px] truncate">
+                      {SEARCH_SCOPES.find((s) => s.value === scope)?.label}
+                    </span>
+                    <ChevronDown size={12} />
+                  </button>
+                  <AnimatePresence>
+                    {scopeOpen && (
+                      <motion.ul
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 4 }}
+                        transition={{ duration: 0.15 }}
+                        role="listbox"
+                        className="absolute left-0 top-full z-30 mt-1 min-w-[220px] overflow-hidden rounded-xl border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] py-1 shadow-lg"
+                      >
+                        {SEARCH_SCOPES.map((s) => (
+                          <li key={s.value}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setScope(s.value);
+                                setScopeOpen(false);
+                              }}
+                              role="option"
+                              aria-selected={scope === s.value}
+                              className={[
+                                "flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-colors",
+                                scope === s.value
+                                  ? "bg-[color:var(--color-primary-tint)] text-[color:var(--color-primary)]"
+                                  : "text-[color:var(--color-text)] hover:bg-[color:var(--color-bg-secondary)]",
+                              ].join(" ")}
+                            >
+                              {s.label}
+                            </button>
+                          </li>
+                        ))}
+                      </motion.ul>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                <input
+                  type="text"
+                  className="min-w-0 flex-1 bg-transparent px-4 text-sm text-[color:var(--color-text)] placeholder:text-[color:var(--color-text-tertiary)] focus:outline-none"
+                  placeholder="Search laptops, headphones, drones, cameras…"
+                  value={searchQuery}
+                  onFocus={() => setSearchFocus(true)}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  aria-label="Search products"
+                />
+                <button
+                  type="submit"
+                  aria-label="Search"
+                  className="inline-flex items-center gap-1.5 bg-[color:var(--color-primary)] px-5 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-white transition-all hover:bg-[color:var(--color-primary-hover)] hover:shadow-[0_0_20px_var(--color-primary-tint)]"
+                >
+                  <Search size={14} /> Search
+                </button>
+              </form>
+
+              {/* Suggestions dropdown */}
+              <AnimatePresence>
+                {searchFocus && (recentSearches.length > 0 || searchQuery.length > 0) && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 4 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-xl border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] p-2 shadow-lg"
+                    role="listbox"
+                  >
+                    {recentSearches.length > 0 && (
+                      <div className="mb-1">
+                        <div className="px-2 pb-1 font-mono text-[10px] uppercase tracking-[0.16em] text-[color:var(--color-text-tertiary)]">
+                          Recent searches
+                        </div>
+                        {recentSearches.map((q) => (
+                          <button
+                            key={q}
+                            type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setSearchQuery(q);
+                              router.push(`/en/search?q=${encodeURIComponent(q)}`);
+                              setSearchFocus(false);
+                            }}
+                            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-[color:var(--color-text)] hover:bg-[color:var(--color-bg-secondary)]"
+                          >
+                            <Search size={13} className="text-[color:var(--color-text-tertiary)]" />
+                            {q}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    <div className="px-2 pb-1 pt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-[color:var(--color-text-tertiary)]">
+                      Popular departments
+                    </div>
+                    {DEPARTMENTS.slice(0, 6).map((d) => (
+                      <Link
+                        key={d.slug}
+                        href={`/catalog/${d.slug}`}
+                        onClick={() => setSearchFocus(false)}
+                        className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm text-[color:var(--color-text)] hover:bg-[color:var(--color-bg-secondary)]"
+                      >
+                        <span className="inline-flex items-center gap-2">
+                          <d.Icon size={14} className="text-[color:var(--color-primary)]" />
+                          {d.name}
+                        </span>
+                        <ArrowRight size={12} className="text-[color:var(--color-text-tertiary)]" />
+                      </Link>
+                    ))}
+                  </motion.div>
                 )}
-              </Link>
-              <button
-                onClick={() => setMobileOpen(true)}
-                aria-label="Menu"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[color:var(--color-text)] hover:bg-[color:var(--color-bg-secondary)] lg:hidden"
+              </AnimatePresence>
+            </div>
+
+            {/* Right cluster — Account · Compare · Wishlist · Cart */}
+            <div className="hidden items-center gap-1 lg:flex">
+              {/* Account */}
+              <div
+                ref={accountDismissRef}
+                className="relative"
+                onMouseEnter={() => setAccountOpen(true)}
+                onMouseLeave={() => setAccountOpen(false)}
               >
-                <Menu size={20} />
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setAccountOpen((v) => !v)}
+                  aria-haspopup="menu"
+                  aria-expanded={accountOpen}
+                  className="inline-flex h-10 items-center gap-2 rounded-lg px-3 text-[color:var(--color-text-secondary)] transition-colors hover:bg-[color:var(--color-bg-secondary)] hover:text-[color:var(--color-text)]"
+                >
+                  <UserIcon size={18} />
+                  <span className="hidden text-left leading-tight xl:inline-flex xl:flex-col">
+                    <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-[color:var(--color-text-tertiary)]">
+                      {user ? "Signed in" : "Hello"}
+                    </span>
+                    <span className="text-xs font-semibold text-[color:var(--color-text)]">
+                      {user ? "Account" : "Sign in"}
+                    </span>
+                  </span>
+                  <ChevronDown size={12} />
+                </button>
+                <AnimatePresence>
+                  {accountOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 4 }}
+                      transition={{ duration: 0.15 }}
+                      role="menu"
+                      className="absolute right-0 top-full z-30 mt-1 w-64 overflow-hidden rounded-xl border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] p-2 shadow-lg"
+                    >
+                      {!user ? (
+                        <>
+                          <Link
+                            href="/auth/login"
+                            role="menuitem"
+                            className="flex items-center justify-center rounded-lg bg-[color:var(--color-primary)] px-3 py-2 text-center font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-white transition-all hover:bg-[color:var(--color-primary-hover)]"
+                          >
+                            Sign in
+                          </Link>
+                          <Link
+                            href="/auth/register"
+                            role="menuitem"
+                            className="mt-1 flex items-center justify-center rounded-lg border border-[color:var(--color-line)] px-3 py-2 text-center text-xs font-semibold text-[color:var(--color-text)] transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
+                          >
+                            Create account
+                          </Link>
+                          <div className="my-2 h-px bg-[color:var(--color-line)]" />
+                        </>
+                      ) : (
+                        <div className="mb-2 rounded-lg bg-[color:var(--color-bg-secondary)] p-3">
+                          <div className="font-mono text-[9px] uppercase tracking-[0.16em] text-[color:var(--color-text-tertiary)]">
+                            Signed in as
+                          </div>
+                          <div className="mt-0.5 truncate text-sm font-semibold text-[color:var(--color-text)]">
+                            {user.email}
+                          </div>
+                        </div>
+                      )}
+                      {[
+                        { href: "/account", icon: UserIcon, label: "My account" },
+                        { href: "/account/orders", icon: Package, label: "Orders" },
+                        { href: "/account/wishlist", icon: Heart, label: "Wishlist" },
+                        { href: "/account/orders", icon: Bell, label: "Alerts" },
+                      ].map((item) => (
+                        <Link
+                          key={item.label}
+                          href={item.href}
+                          role="menuitem"
+                          className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-[color:var(--color-text)] transition-colors hover:bg-[color:var(--color-bg-secondary)]"
+                        >
+                          <item.icon size={14} className="text-[color:var(--color-primary)]" />
+                          {item.label}
+                        </Link>
+                      ))}
+                      {user && (role === "ADMIN" || role === "SUPER_ADMIN") && (
+                        <NextLink
+                          href="/admin"
+                          role="menuitem"
+                          className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-[color:var(--color-text)] transition-colors hover:bg-[color:var(--color-bg-secondary)]"
+                        >
+                          <Shield size={14} className="text-[color:var(--color-primary)]" />
+                          Admin panel
+                        </NextLink>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Compare */}
+              <Link
+                href="/account/wishlist"
+                className="inline-flex h-10 items-center gap-2 rounded-lg px-3 text-[color:var(--color-text-secondary)] transition-colors hover:bg-[color:var(--color-bg-secondary)] hover:text-[color:var(--color-text)]"
+                aria-label="Compare"
+              >
+                <GitCompare size={18} />
+                <span className="hidden text-left leading-tight xl:inline-flex xl:flex-col">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-[color:var(--color-text-tertiary)]">
+                    Compare
+                  </span>
+                  <span className="text-xs font-semibold text-[color:var(--color-text)]">
+                    0 items
+                  </span>
+                </span>
+              </Link>
+
+              {/* Wishlist */}
+              <Link
+                href="/account/wishlist"
+                className="inline-flex h-10 items-center gap-2 rounded-lg px-3 text-[color:var(--color-text-secondary)] transition-colors hover:bg-[color:var(--color-bg-secondary)] hover:text-[color:var(--color-text)]"
+                aria-label="Wishlist"
+              >
+                <Heart size={18} />
+                <span className="hidden text-left leading-tight xl:inline-flex xl:flex-col">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-[color:var(--color-text-tertiary)]">
+                    Wishlist
+                  </span>
+                  <span className="text-xs font-semibold text-[color:var(--color-text)]">
+                    Saved
+                  </span>
+                </span>
+              </Link>
+
+              {/* Cart with mini-cart hover */}
+              <div
+                ref={cartDismissRef}
+                className="relative"
+                onMouseEnter={() => setMiniCartOpen(true)}
+                onMouseLeave={() => setMiniCartOpen(false)}
+              >
+                <Link
+                  href="/cart"
+                  className="relative inline-flex h-10 items-center gap-2 rounded-lg bg-[color:var(--color-primary)] px-3 text-white transition-all hover:bg-[color:var(--color-primary-hover)] hover:shadow-[0_0_20px_var(--color-primary-tint)]"
+                  aria-label={t("cart")}
+                >
+                  <div className="relative">
+                    <ShoppingCart size={18} />
+                    {itemCount > 0 && (
+                      <motion.span
+                        key={cartBounce}
+                        initial={cartBounce > 0 ? { scale: 0.5 } : false}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", damping: 10, stiffness: 400 }}
+                        className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-white px-1 font-mono text-[9px] font-bold text-[color:var(--color-primary)]"
+                      >
+                        {itemCount > 99 ? "99+" : itemCount}
+                      </motion.span>
+                    )}
+                  </div>
+                  <span className="hidden text-left leading-tight xl:inline-flex xl:flex-col">
+                    <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-white/70">
+                      Basket
+                    </span>
+                    <span className="font-mono text-xs font-semibold tabular-nums">
+                      £{subtotal.toFixed(2)}
+                    </span>
+                  </span>
+                </Link>
+
+                <AnimatePresence>
+                  {miniCartOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 4 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 top-full z-30 mt-1 w-80 overflow-hidden rounded-xl border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] p-3 shadow-lg"
+                    >
+                      <div className="flex items-center justify-between pb-2">
+                        <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[color:var(--color-text-tertiary)]">
+                          Basket · {itemCount} item{itemCount === 1 ? "" : "s"}
+                        </span>
+                        <span className="font-mono text-xs font-semibold text-[color:var(--color-text)]">
+                          £{subtotal.toFixed(2)}
+                        </span>
+                      </div>
+                      {items.length === 0 ? (
+                        <div className="py-6 text-center text-sm text-[color:var(--color-text-tertiary)]">
+                          Your basket is empty
+                        </div>
+                      ) : (
+                        <>
+                          <ul className="max-h-72 space-y-2 overflow-y-auto">
+                            {items.slice(0, 4).map((it) => (
+                              <li
+                                key={it.productId}
+                                className="flex items-center gap-3 rounded-lg border border-[color:var(--color-line)] p-2"
+                              >
+                                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-[color:var(--color-bg-secondary)]">
+                                  {it.imageUrl && (
+                                    <Image
+                                      src={it.imageUrl}
+                                      alt={it.name}
+                                      fill
+                                      sizes="48px"
+                                      className="object-contain p-1"
+                                    />
+                                  )}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <div className="truncate text-xs font-medium text-[color:var(--color-text)]">
+                                    {it.name}
+                                  </div>
+                                  <div className="mt-0.5 font-mono text-[11px] text-[color:var(--color-text-tertiary)] tabular-nums">
+                                    {it.quantity} × £{it.price.toFixed(2)}
+                                  </div>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => removeItem(it.productId)}
+                                  aria-label="Remove item"
+                                  className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[color:var(--color-text-tertiary)] hover:bg-[color:var(--color-bg-secondary)] hover:text-[color:var(--color-danger)]"
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                          {items.length > 4 && (
+                            <div className="pt-2 text-center font-mono text-[10px] uppercase tracking-[0.16em] text-[color:var(--color-text-tertiary)]">
+                              + {items.length - 4} more
+                            </div>
+                          )}
+                          <div className="mt-3 grid grid-cols-2 gap-2">
+                            <Link
+                              href="/cart"
+                              className="inline-flex items-center justify-center rounded-lg border border-[color:var(--color-line)] px-2 py-2 text-center font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-text)] transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
+                            >
+                              View basket
+                            </Link>
+                            <Link
+                              href="/checkout"
+                              className="inline-flex items-center justify-center rounded-lg bg-[color:var(--color-primary)] px-2 py-2 text-center font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-white transition-colors hover:bg-[color:var(--color-primary-hover)]"
+                            >
+                              Checkout
+                            </Link>
+                          </div>
+                        </>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
 
           {/* Mobile search row */}
-          <div className="border-t border-[color:var(--color-line)] px-4 py-2 md:hidden">
+          <div className="border-t border-[color:var(--color-line)] px-4 py-2 lg:hidden">
             <form
-              className="flex items-center rounded-full border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] pl-3 pr-1"
+              className="flex items-center rounded-xl border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] pl-3 pr-1"
               onSubmit={handleSearch}
             >
               <Search size={14} className="text-[color:var(--color-text-tertiary)]" />
@@ -752,81 +868,257 @@ export function Header() {
               <button
                 type="submit"
                 aria-label="Search"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-white"
+                className="inline-flex h-8 items-center justify-center rounded-lg bg-[color:var(--color-primary)] px-3 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-white"
               >
-                <Search size={12} />
+                Go
               </button>
             </form>
           </div>
         </div>
 
-        {/* Level 4 — Editorial numbered nav with auto-rotating pages (24 curated categories) */}
-        <NumberedNavRotator paused={megaOpen || mobileOpen} />
+        {/* ── Tier 3 · Persistent primary nav — All Categories + departments ── */}
+        <div
+          ref={megaDismissRef}
+          className="hidden border-b border-[color:var(--color-line)] bg-[color:var(--color-bg)] lg:block"
+          onMouseLeave={closeMegaSoon}
+        >
+          <div className="mx-auto flex h-11 max-w-[var(--container-content)] items-center gap-1 px-4 sm:px-6 lg:px-8">
+            <button
+              type="button"
+              onClick={() => setMegaOpen((v) => !v)}
+              onMouseEnter={openMega}
+              aria-expanded={megaOpen}
+              aria-haspopup="true"
+              className={[
+                "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg px-3 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] transition-all",
+                megaOpen
+                  ? "bg-[color:var(--color-primary)] text-white shadow-[0_0_16px_var(--color-primary-tint)]"
+                  : "bg-[color:var(--color-primary-tint)] text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary)] hover:text-white",
+              ].join(" ")}
+            >
+              <LayoutGrid size={13} />
+              Shop by department
+              <ChevronDown
+                size={11}
+                className={`transition-transform ${megaOpen ? "rotate-180" : ""}`}
+              />
+            </button>
 
-        {/* Level 4 — Trending strip (25 leaf subs across whole tree) */}
-        {trendingSubs.length > 0 && (
-          <div className="hidden border-b border-[color:var(--color-line)] bg-[color:var(--color-bg-secondary)] md:block">
-            <div className="mx-auto max-w-[var(--container-content)] px-4 sm:px-6 lg:px-8">
-              <CategoryStrip containerBg="var(--color-bg-secondary)" ariaLabel="Trending categories">
-                <div className="flex items-center gap-2 py-2">
-                  <span className="mr-1 inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-accent)]">
-                    <Flame size={11} strokeWidth={2} /> Trending
-                  </span>
-                  {trendingSubs.map((sub) => {
-                    const Icon = getIconForCategory(sub.slug, sub.name);
-                    const label = labelFor(sub, nameCountLevel4, 28);
-                    return (
-                      <Link
-                        key={sub.id}
-                        href={`/catalog/${sub.slug}`}
-                        className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] px-3 py-1 text-[12px] font-medium text-[color:var(--color-text-secondary)] transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
-                        title={sub.name}
-                      >
-                        <Icon size={12} strokeWidth={1.75} />
-                        {label}
-                      </Link>
-                    );
-                  })}
-                  <Link
-                    href="/catalog"
-                    className="ml-2 inline-flex shrink-0 items-center gap-1 rounded-full bg-[color:var(--color-primary)] px-3 py-1 text-[11px] font-semibold text-white transition-colors hover:bg-[color:var(--color-primary-hover)]"
-                  >
-                    All categories <ChevronRight size={12} />
-                  </Link>
-                </div>
-              </CategoryStrip>
+            {DEPARTMENTS.map((d) => (
+              <button
+                key={d.slug}
+                type="button"
+                onMouseEnter={() => {
+                  openMega();
+                  setActiveDept(d.slug);
+                }}
+                onClick={() => {
+                  router.push(`/en/catalog/${d.slug}`);
+                }}
+                className={[
+                  "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md px-2.5 text-[12.5px] font-medium transition-colors",
+                  activeDept === d.slug && megaOpen
+                    ? "bg-[color:var(--color-bg-secondary)] text-[color:var(--color-primary)]"
+                    : "text-[color:var(--color-text)] hover:text-[color:var(--color-primary)]",
+                ].join(" ")}
+              >
+                <d.Icon size={13} className="text-[color:var(--color-primary)]" />
+                {d.short}
+              </button>
+            ))}
+
+            <div className="ml-auto flex items-center gap-3 text-[11px] font-mono uppercase tracking-[0.14em] text-[color:var(--color-text-tertiary)]">
+              <Link
+                href="/catalog?onSale=true"
+                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[color:var(--color-danger)] transition-colors hover:bg-[color:var(--color-danger-tint)]"
+              >
+                <Zap size={12} /> Deals
+              </Link>
+              <Link
+                href="/catalog?sort=newest"
+                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[color:var(--color-primary)] transition-colors hover:bg-[color:var(--color-primary-tint)]"
+              >
+                <Sparkles size={12} /> New in
+              </Link>
+              <Link
+                href="/policies/warranty"
+                className="hidden items-center gap-1 rounded-md px-2 py-1 text-[color:var(--color-text)] transition-colors hover:text-[color:var(--color-primary)] xl:inline-flex"
+              >
+                B2B
+              </Link>
             </div>
           </div>
-        )}
+
+          {/* Mega-menu panel */}
+          <AnimatePresence>
+            {megaOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.18 }}
+                className="absolute inset-x-0 top-full z-30 border-t border-[color:var(--color-line)] bg-[color:var(--color-bg)]/95 backdrop-blur-xl shadow-[0_20px_50px_-24px_rgba(14,17,22,0.35)]"
+                onMouseEnter={openMega}
+                onMouseLeave={closeMegaSoon}
+                role="dialog"
+                aria-label="Shop by department"
+              >
+                <div className="mx-auto grid max-w-[var(--container-content)] grid-cols-[220px_1fr_260px] gap-6 px-4 py-6 sm:px-6 lg:px-8">
+                  {/* Rail — departments list */}
+                  <nav
+                    aria-label="Departments"
+                    className="flex flex-col gap-1 border-r border-[color:var(--color-line)] pr-2"
+                  >
+                    {DEPARTMENTS.map((d) => (
+                      <button
+                        key={d.slug}
+                        type="button"
+                        onMouseEnter={() => setActiveDept(d.slug)}
+                        onClick={() => router.push(`/en/catalog/${d.slug}`)}
+                        className={[
+                          "group flex items-center justify-between gap-2 rounded-lg px-2 py-2 text-left text-sm transition-colors",
+                          activeDept === d.slug
+                            ? "bg-[color:var(--color-primary-tint)] text-[color:var(--color-primary)]"
+                            : "text-[color:var(--color-text)] hover:bg-[color:var(--color-bg-secondary)]",
+                        ].join(" ")}
+                      >
+                        <span className="inline-flex items-center gap-2">
+                          <d.Icon size={14} className="text-[color:var(--color-primary)]" />
+                          <span className="font-medium">{d.short}</span>
+                        </span>
+                        <ChevronRight
+                          size={12}
+                          className={`transition-transform ${activeDept === d.slug ? "translate-x-0.5" : ""}`}
+                        />
+                      </button>
+                    ))}
+                  </nav>
+
+                  {/* Center — sub-categories from live DB + featured */}
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-baseline justify-between">
+                      <div className="flex flex-col">
+                        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--color-text-tertiary)]">
+                          Department
+                        </span>
+                        <Link
+                          href={`/catalog/${activeDeptData.slug}`}
+                          className="font-display text-lg font-semibold text-[color:var(--color-text)] hover:text-[color:var(--color-primary)]"
+                        >
+                          {activeDeptData.name}
+                        </Link>
+                        <span className="mt-0.5 text-xs text-[color:var(--color-text-tertiary)]">
+                          {activeDeptData.tagline}
+                        </span>
+                      </div>
+                      {activeDeptLive?._count && (
+                        <span className="font-mono text-[11px] text-[color:var(--color-text-tertiary)] tabular-nums">
+                          {activeDeptLive._count.products.toLocaleString()} products
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-1">
+                      {activeDeptLive?.children?.length ? (
+                        activeDeptLive.children.map((sub) => (
+                          <Link
+                            key={sub.id}
+                            href={`/catalog/${sub.slug}`}
+                            className="group flex items-center justify-between rounded-md px-2 py-1.5 text-sm text-[color:var(--color-text)] transition-colors hover:bg-[color:var(--color-bg-secondary)] hover:text-[color:var(--color-primary)]"
+                          >
+                            <span>{sub.name}</span>
+                            <span className="font-mono text-[10px] text-[color:var(--color-text-tertiary)] tabular-nums">
+                              {sub._count?.products ?? 0}
+                            </span>
+                          </Link>
+                        ))
+                      ) : (
+                        activeDeptData.featured.map((f) => (
+                          <Link
+                            key={f.slug + f.label}
+                            href={`/catalog/${f.slug}`}
+                            className="group flex items-center justify-between rounded-md px-2 py-1.5 text-sm text-[color:var(--color-text)] transition-colors hover:bg-[color:var(--color-bg-secondary)] hover:text-[color:var(--color-primary)]"
+                          >
+                            <span>{f.label}</span>
+                            <ChevronRight
+                              size={11}
+                              className="opacity-0 group-hover:opacity-100"
+                            />
+                          </Link>
+                        ))
+                      )}
+                    </div>
+
+                    <div className="mt-1 flex items-center gap-2 border-t border-[color:var(--color-line)] pt-3">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--color-text-tertiary)]">
+                        Featured brands
+                      </span>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {["Apple", "Samsung", "LG", "HP", "Lenovo", "Sony"].map((b) => (
+                          <Link
+                            key={b}
+                            href={`/search?q=${encodeURIComponent(b)}`}
+                            className="inline-flex items-center rounded-full border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-[color:var(--color-text)] transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
+                          >
+                            {b}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right — promo tile */}
+                  <Link
+                    href={activeDeptData.promo.href}
+                    className="group relative flex flex-col justify-end overflow-hidden rounded-xl border border-[color:var(--color-line)] bg-gradient-to-br from-[color:var(--color-primary)] to-[color:var(--color-violet)] p-5 text-white"
+                  >
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute inset-0 tech-grid opacity-30"
+                    />
+                    <span className="relative z-10 mb-2 inline-flex w-fit items-center gap-1 rounded-md bg-white/20 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] backdrop-blur">
+                      {activeDeptData.promo.badge}
+                    </span>
+                    <div className="relative z-10 font-display text-lg font-semibold leading-tight">
+                      {activeDeptData.promo.title}
+                    </div>
+                    <div className="relative z-10 mt-1 text-xs text-white/80">
+                      {activeDeptData.promo.subtitle}
+                    </div>
+                    <div className="relative z-10 mt-4 inline-flex items-center gap-1 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-white transition-transform group-hover:translate-x-0.5">
+                      Shop now <ArrowRight size={12} />
+                    </div>
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </header>
 
-      <CatalogMenu open={megaOpen} onClose={() => setMegaOpen(false)} categories={categories} />
-
-      {/* Mobile drawer */}
+      {/* ── Mobile drawer ─────────────────────────────────────────────── */}
       <AnimatePresence>
         {mobileOpen && (
           <>
             <motion.div
-              className="fixed inset-0 z-50 bg-[color:var(--color-text)]/50 backdrop-blur-sm"
+              className="fixed inset-0 z-50 bg-[color:var(--color-text)]/60 backdrop-blur-sm"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
             />
             <motion.aside
-              className="fixed inset-y-0 right-0 z-50 flex w-[86%] max-w-sm flex-col bg-[color:var(--color-bg)] shadow-xl"
+              className="fixed inset-y-0 right-0 z-50 flex w-[92%] max-w-sm flex-col bg-[color:var(--color-bg)] shadow-xl"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
             >
               <div className="flex items-center justify-between border-b border-[color:var(--color-line)] px-5 py-4">
-                <span className="font-serif text-lg font-medium text-[color:var(--color-text)]">
-                  Menu
-                </span>
+                <ElectreiaLogo size={20} />
                 <button
                   onClick={() => setMobileOpen(false)}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[color:var(--color-text-secondary)] hover:bg-[color:var(--color-bg-secondary)]"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[color:var(--color-text-secondary)] hover:bg-[color:var(--color-bg-secondary)]"
                   aria-label="Close menu"
                 >
                   <X size={18} />
@@ -834,95 +1126,136 @@ export function Header() {
               </div>
 
               <div className="flex-1 overflow-y-auto px-3 py-3">
-                <nav className="flex flex-col">
-                  {[
-                    { href: "/", label: t("home") },
-                    { href: "/catalog", label: t("catalog") },
-                    { href: "/catalog?sort=newest", label: "New Arrivals" },
-                    { href: "/catalog?onSale=true", label: "Sale" },
-                  ].map((link) => (
-                    <Link
-                      key={link.label}
-                      href={link.href}
-                      className="flex items-center justify-between rounded-lg px-3 py-3 text-sm font-medium text-[color:var(--color-text)] hover:bg-[color:var(--color-bg-secondary)]"
-                      onClick={() => setMobileOpen(false)}
-                    >
-                      {link.label}
-                      <ChevronRight size={16} className="text-[color:var(--color-text-tertiary)]" />
-                    </Link>
-                  ))}
-
-                  <div className="my-2 h-px bg-[color:var(--color-line)]" />
-
-                  {topStripCategories.slice(0, 16).map((cat) => {
-                    const Icon = getIconForCategory(cat.slug, cat.name);
-                    const label = labelFor(cat, nameCountLevel3);
+                {/* Departments accordion */}
+                <div className="mb-4">
+                  <div className="px-2 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--color-text-tertiary)]">
+                    Shop by department
+                  </div>
+                  {DEPARTMENTS.map((d) => {
+                    const live = findLiveDept(d.slug);
+                    const isOpen = mobileAcc === d.slug;
                     return (
-                      <Link
-                        key={cat.id}
-                        href={`/catalog/${cat.slug}`}
-                        className="flex items-center justify-between rounded-lg px-3 py-3 text-sm font-medium text-[color:var(--color-text)] hover:bg-[color:var(--color-bg-secondary)]"
-                        onClick={() => setMobileOpen(false)}
+                      <div
+                        key={d.slug}
+                        className="border-b border-[color:var(--color-line)]"
                       >
-                        <span className="flex items-center gap-3 text-[color:var(--color-text-secondary)]">
-                          <Icon size={16} />
-                          <span className="text-[color:var(--color-text)]">{label}</span>
-                        </span>
-                        <ChevronRight size={16} className="text-[color:var(--color-text-tertiary)]" />
-                      </Link>
+                        <button
+                          type="button"
+                          onClick={() => setMobileAcc(isOpen ? null : d.slug)}
+                          className="flex w-full items-center justify-between gap-3 px-2 py-3 text-left text-sm font-medium text-[color:var(--color-text)]"
+                          aria-expanded={isOpen}
+                        >
+                          <span className="inline-flex items-center gap-3">
+                            <d.Icon size={16} className="text-[color:var(--color-primary)]" />
+                            {d.name}
+                          </span>
+                          <ChevronDown
+                            size={14}
+                            className={`text-[color:var(--color-text-tertiary)] transition-transform ${isOpen ? "rotate-180" : ""}`}
+                          />
+                        </button>
+                        <AnimatePresence>
+                          {isOpen && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="flex flex-col gap-1 py-2 pl-9 pr-2">
+                                <Link
+                                  href={`/catalog/${d.slug}`}
+                                  onClick={() => setMobileOpen(false)}
+                                  className="rounded-md px-2 py-1.5 text-sm font-semibold text-[color:var(--color-primary)]"
+                                >
+                                  Shop all {d.short}
+                                </Link>
+                                {(live?.children ?? []).map((sub) => (
+                                  <Link
+                                    key={sub.id}
+                                    href={`/catalog/${sub.slug}`}
+                                    onClick={() => setMobileOpen(false)}
+                                    className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm text-[color:var(--color-text)] hover:bg-[color:var(--color-bg-secondary)]"
+                                  >
+                                    {sub.name}
+                                    <span className="font-mono text-[10px] text-[color:var(--color-text-tertiary)] tabular-nums">
+                                      {sub._count?.products ?? 0}
+                                    </span>
+                                  </Link>
+                                ))}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
                     );
                   })}
+                </div>
 
-                  <div className="my-2 h-px bg-[color:var(--color-line)]" />
-
-                  <Link
-                    href="/contact"
-                    className="flex items-center justify-between rounded-lg px-3 py-3 text-sm font-medium text-[color:var(--color-text)] hover:bg-[color:var(--color-bg-secondary)]"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    {t("contact")}
-                    <ChevronRight size={16} className="text-[color:var(--color-text-tertiary)]" />
-                  </Link>
-
-                  {user && (role === "ADMIN" || role === "SUPER_ADMIN") && (
-                    <NextLink
-                      href="/admin"
-                      className="flex items-center justify-between rounded-lg px-3 py-3 text-sm font-medium text-[color:var(--color-text)] hover:bg-[color:var(--color-bg-secondary)]"
+                {/* Utility links */}
+                <div className="mb-4 flex flex-col gap-1">
+                  <div className="px-2 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[color:var(--color-text-tertiary)]">
+                    Quick links
+                  </div>
+                  {[
+                    { href: "/catalog?onSale=true", label: "Deals & clearance", icon: Zap },
+                    { href: "/catalog?sort=newest", label: "New arrivals", icon: Sparkles },
+                    { href: "/account/orders", label: "Track order", icon: Package },
+                    { href: "/contact", label: "Help centre", icon: HelpCircle },
+                    { href: "/contact", label: "Store & stock", icon: MapPin },
+                  ].map((l) => (
+                    <Link
+                      key={l.label}
+                      href={l.href}
                       onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-3 rounded-md px-2 py-2 text-sm font-medium text-[color:var(--color-text)] hover:bg-[color:var(--color-bg-secondary)]"
                     >
-                      Admin Panel
-                      <ChevronRight size={16} className="text-[color:var(--color-text-tertiary)]" />
-                    </NextLink>
-                  )}
-                </nav>
+                      <l.icon size={14} className="text-[color:var(--color-primary)]" />
+                      {l.label}
+                    </Link>
+                  ))}
+                </div>
               </div>
 
-              <div className="flex flex-col gap-2 border-t border-[color:var(--color-line)] px-5 py-4">
+              {/* Footer of the drawer — account CTAs */}
+              <div className="border-t border-[color:var(--color-line)] px-5 py-4">
                 {user ? (
-                  <Link
-                    href="/account"
-                    onClick={() => setMobileOpen(false)}
-                    className="inline-flex h-11 items-center justify-center rounded-full bg-[color:var(--color-accent)] text-sm font-semibold text-white hover:bg-[color:var(--color-accent-hover)]"
-                  >
-                    My Account
-                  </Link>
+                  <div className="flex flex-col gap-2">
+                    <Link
+                      href="/account"
+                      onClick={() => setMobileOpen(false)}
+                      className="inline-flex h-11 items-center justify-center rounded-lg bg-[color:var(--color-primary)] text-sm font-semibold text-white"
+                    >
+                      My account
+                    </Link>
+                    {(role === "ADMIN" || role === "SUPER_ADMIN") && (
+                      <NextLink
+                        href="/admin"
+                        onClick={() => setMobileOpen(false)}
+                        className="inline-flex h-11 items-center justify-center rounded-lg border border-[color:var(--color-line)] text-sm font-semibold text-[color:var(--color-text)]"
+                      >
+                        Admin panel
+                      </NextLink>
+                    )}
+                  </div>
                 ) : (
-                  <>
+                  <div className="grid grid-cols-2 gap-2">
                     <Link
                       href="/auth/login"
                       onClick={() => setMobileOpen(false)}
-                      className="inline-flex h-11 items-center justify-center rounded-full bg-[color:var(--color-accent)] text-sm font-semibold text-white hover:bg-[color:var(--color-accent-hover)]"
+                      className="inline-flex h-11 items-center justify-center rounded-lg bg-[color:var(--color-primary)] text-sm font-semibold text-white"
                     >
-                      Sign In
+                      Sign in
                     </Link>
                     <Link
                       href="/auth/register"
                       onClick={() => setMobileOpen(false)}
-                      className="inline-flex h-11 items-center justify-center rounded-full border border-[color:var(--color-primary)] text-sm font-semibold text-[color:var(--color-primary)] hover:bg-[color:var(--color-primary-tint)]"
+                      className="inline-flex h-11 items-center justify-center rounded-lg border border-[color:var(--color-primary)] text-sm font-semibold text-[color:var(--color-primary)]"
                     >
-                      Create Account
+                      Register
                     </Link>
-                  </>
+                  </div>
                 )}
               </div>
             </motion.aside>
