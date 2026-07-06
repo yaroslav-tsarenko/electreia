@@ -4,13 +4,11 @@ import { prisma } from "@/lib/prisma";
 export async function POST() {
   try {
     // ── Utility Links ──────────────────────────────────
-    // All linkUrls must point to routes that exist in src/app/[locale]/*
-    // to avoid 404s on click.
     const utilityLinks = [
       { label: "About Us", linkUrl: "/about", icon: "Info", position: "left", sortOrder: 0 },
       { label: "Shipping & Delivery", linkUrl: "/policies/shipping", icon: "Truck", position: "left", sortOrder: 1 },
       { label: "Returns", linkUrl: "/policies/returns", icon: "RotateCcw", position: "left", sortOrder: 2 },
-      { label: "Size Guide", linkUrl: "/size-guide", icon: "Ruler", position: "left", sortOrder: 3 },
+      { label: "Warranty", linkUrl: "/policies/warranty", icon: "ShieldCheck", position: "left", sortOrder: 3 },
       { label: "Track Order", linkUrl: "/account/orders", icon: "Package", position: "left", sortOrder: 4 },
       { label: "Contact", linkUrl: "/contact", icon: "Phone", position: "right", sortOrder: 5 },
     ];
@@ -26,10 +24,10 @@ export async function POST() {
     // ── Promo Strip Items ──────────────────────────────
     const promoStripItems = [
       { icon: "Truck", title: "Free UK Delivery", subtitle: "On orders over £100", sortOrder: 0 },
-      { icon: "RotateCcw", title: "Easy Returns", subtitle: "14-day return policy", sortOrder: 1 },
-      { icon: "Leaf", title: "Sustainable Materials", subtitle: "Organic cottons & recycled polyesters", sortOrder: 2 },
-      { icon: "Shield", title: "Secure Payment", subtitle: "SSL encrypted checkout", sortOrder: 3 },
-      { icon: "Sparkles", title: "Fresh Drops Weekly", subtitle: "New arrivals every Friday", sortOrder: 4 },
+      { icon: "RotateCcw", title: "30-Day Returns", subtitle: "No fine print", sortOrder: 1 },
+      { icon: "ShieldCheck", title: "2-Year Warranty", subtitle: "Manufacturer-backed", sortOrder: 2 },
+      { icon: "Shield", title: "Secure Payment", subtitle: "PCI-DSS · 256-bit SSL", sortOrder: 3 },
+      { icon: "Zap", title: "Same-Day Dispatch", subtitle: "Order before 14:00 GMT", sortOrder: 4 },
     ];
 
     for (const item of promoStripItems) {
@@ -40,19 +38,17 @@ export async function POST() {
       });
     }
 
-    // ── Homepage Tabs ──────────────────────────────────
-    // Offers / New / Outlet all resolve to the catalog with query params
-    // — no dedicated pages exist and the catalog handles ?onSale and ?sort.
+    // ── Homepage Tabs (quick-access chips) ─────────────
     const tabs = [
-      { label: "Offers", icon: "Flame", linkUrl: "/catalog?onSale=true", color: "#E53935", sortOrder: 0 },
-      { label: "Men", icon: "User", linkUrl: "/catalog/men", color: "#1F2937", sortOrder: 1 },
-      { label: "Women", icon: "PersonStanding", linkUrl: "/catalog/women", color: "#BE185D", sortOrder: 2 },
-      { label: "Kids", icon: "Baby", linkUrl: "/catalog/kids", color: "#0EA5E9", sortOrder: 3 },
-      { label: "Swimwear", icon: "Waves", linkUrl: "/catalog/women-swimwear", color: "#0891B2", sortOrder: 4 },
-      { label: "T-shirts", icon: "Shirt", linkUrl: "/catalog/men-t-shirts", color: "#334155", sortOrder: 5 },
-      { label: "Hoodies", icon: "Layers", linkUrl: "/catalog/men-sweatshirts", color: "#7C3AED", sortOrder: 6 },
-      { label: "New Arrivals", icon: "Sparkles", linkUrl: "/catalog?sort=newest", color: "#F59E0B", sortOrder: 7 },
-      { label: "Outlet", icon: "Tag", linkUrl: "/catalog?onSale=true", color: "#EA580C", sortOrder: 8 },
+      { label: "Deals", icon: "Zap", linkUrl: "/catalog?onSale=true", color: "#2E7DFF", sortOrder: 0 },
+      { label: "Audio", icon: "Headphones", linkUrl: "/catalog/audio-headphones", color: "#2E7DFF", sortOrder: 1 },
+      { label: "Laptops", icon: "Cpu", linkUrl: "/catalog/laptops-computers", color: "#2E7DFF", sortOrder: 2 },
+      { label: "Smartphones", icon: "Smartphone", linkUrl: "/catalog/smartphones-tablets", color: "#7C5CFF", sortOrder: 3 },
+      { label: "Monitors", icon: "Monitor", linkUrl: "/catalog/displays-monitors", color: "#7C5CFF", sortOrder: 4 },
+      { label: "Gaming", icon: "Gamepad2", linkUrl: "/catalog/gaming-consoles", color: "#3ED598", sortOrder: 5 },
+      { label: "Peripherals", icon: "Keyboard", linkUrl: "/catalog/peripherals", color: "#2E7DFF", sortOrder: 6 },
+      { label: "Cameras", icon: "Camera", linkUrl: "/catalog/cameras-drones", color: "#7C5CFF", sortOrder: 7 },
+      { label: "New in", icon: "Sparkles", linkUrl: "/catalog?sort=newest", color: "#3ED598", sortOrder: 8 },
     ];
 
     for (const tab of tabs) {
@@ -63,42 +59,42 @@ export async function POST() {
       });
     }
 
-    // ── Hero Slides (Banners type HERO) ────────────────
+    // ── Hero Slides ────────────────────────────────────
     const heroSlides = [
       {
         type: "HERO" as const,
-        title: "Refined athletic apparel",
-        subtitle: "For men, women and kids",
-        description: "Sustainably sourced tees, hoodies, leggings and swimwear — shipped from the UK with free delivery over £100.",
-        linkUrl: "/catalog",
-        ctaLabel: "Shop the edit",
-        bgColor: "#0F172A",
-        textColor: "#ffffff",
-        badgeText: "NEW SEASON",
+        title: "Precision-engineered audio",
+        subtitle: "Reference series",
+        description: "Studio-grade headphones, spatial speakers and reference DACs — hand-picked for spec, tuned by ear.",
+        linkUrl: "/catalog/audio-headphones",
+        ctaLabel: "Shop audio",
+        bgColor: "#0B0E14",
+        textColor: "#EDF1F5",
+        badgeText: "SERIES 01",
         sortOrder: 0,
       },
       {
         type: "HERO" as const,
-        title: "Women's Swimwear Edit",
-        subtitle: "Made for sunlight",
-        description: "High-rise bikinis, one-pieces and cover-ups in vivid, print-forward palettes.",
-        linkUrl: "/catalog/women-swimwear",
-        ctaLabel: "Shop swimwear",
-        bgColor: "#0891B2",
-        textColor: "#ffffff",
-        badgeText: "SUMMER",
+        title: "Ultra-portable compute",
+        subtitle: "Silicon-native laptops",
+        description: "ProMotion displays, 20-hour batteries, sub-1kg chassis — laptops built for sustained performance.",
+        linkUrl: "/catalog/laptops-computers",
+        ctaLabel: "Shop laptops",
+        bgColor: "#12233F",
+        textColor: "#EDF1F5",
+        badgeText: "SERIES 02",
         sortOrder: 1,
       },
       {
         type: "HERO" as const,
-        title: "Kids Collection",
-        subtitle: "Playful, printed, hard-wearing",
-        description: "All-over prints, organic cotton tees and cozy hoodies built for everyday adventures.",
-        linkUrl: "/catalog/kids",
-        ctaLabel: "Shop kids",
-        bgColor: "#F59E0B",
-        textColor: "#ffffff",
-        badgeText: "FAMILY",
+        title: "The house, aware",
+        subtitle: "Ambient smart home",
+        description: "Matter-native hubs, sensors and lighting that responds. Fewer boxes on the wall, more moments of calm.",
+        linkUrl: "/catalog/smart-home",
+        ctaLabel: "Shop smart home",
+        bgColor: "#1F1A3A",
+        textColor: "#EDF1F5",
+        badgeText: "SERIES 03",
         sortOrder: 2,
       },
     ];
@@ -111,34 +107,34 @@ export async function POST() {
       });
     }
 
-    // ── Deal Cards (Banners type DEAL_CARD) ────────────
+    // ── Deal Cards ─────────────────────────────────────
     const dealCards = [
       {
         type: "DEAL_CARD" as const,
-        title: "RAVORA Performance Leggings",
-        subtitle: "Compression fit",
-        description: "Quick-dry technical leggings with a supportive high waist — built for the studio, the run, the day.",
-        linkUrl: "/catalog/women-bottoms",
+        title: "Reference Studio Monitors",
+        subtitle: "Calibrated pair",
+        description: "Studio-grade near-field monitors with balanced-drive tweeters — 0% finance available.",
+        linkUrl: "/catalog/audio-headphones",
         ctaLabel: "Shop now",
-        bgColor: "#F8F9FA",
-        textColor: "#0F172A",
-        oldPrice: "£45.00",
-        newPrice: "£36.50",
-        discountText: "-20%",
+        bgColor: "#141821",
+        textColor: "#EDF1F5",
+        oldPrice: "£1,549.00",
+        newPrice: "£1,249.00",
+        discountText: "-19%",
         sortOrder: 0,
       },
       {
         type: "DEAL_CARD" as const,
-        title: "Champion Sweatshirt",
-        subtitle: "Heavyweight fleece",
-        description: "Iconic fit, brushed inside, built to outlast the season. A wardrobe cornerstone.",
-        linkUrl: "/catalog/men-sweatshirts",
+        title: "Pro 14 · M-series · 32GB",
+        subtitle: "Ultra-portable",
+        description: "16-core neural engine, ProMotion, sub-1kg. Trade-in credit up to £700.",
+        linkUrl: "/catalog/laptops-computers",
         ctaLabel: "Shop now",
-        bgColor: "#F1F5F9",
-        textColor: "#0F172A",
-        oldPrice: "£65.00",
-        newPrice: "£54.00",
-        discountText: "-17%",
+        bgColor: "#12233F",
+        textColor: "#EDF1F5",
+        oldPrice: "£2,499.00",
+        newPrice: "£2,199.00",
+        discountText: "-12%",
         sortOrder: 1,
       },
     ];
@@ -151,36 +147,36 @@ export async function POST() {
       });
     }
 
-    // ── Small Promo Banners ────────────────────────────
+    // ── Small Promo Banners (department tiles) ─────────
     const smallPromos = [
       {
         type: "PROMO_SMALL" as const,
-        title: "Men",
-        subtitle: "Tees, hoodies & bottoms",
-        linkUrl: "/catalog/men",
-        ctaLabel: "Shop Men",
-        bgColor: "#1F2937",
-        textColor: "#ffffff",
+        title: "Audio & Headphones",
+        subtitle: "Studio-grade, tuned by ear",
+        linkUrl: "/catalog/audio-headphones",
+        ctaLabel: "Shop Audio",
+        bgColor: "#0B0E14",
+        textColor: "#EDF1F5",
         sortOrder: 0,
       },
       {
         type: "PROMO_SMALL" as const,
-        title: "Women",
-        subtitle: "Everyday to activewear",
-        linkUrl: "/catalog/women",
-        ctaLabel: "Shop Women",
-        bgColor: "#FCE7F3",
-        textColor: "#9D174D",
+        title: "Laptops & Computers",
+        subtitle: "Silicon-native performance",
+        linkUrl: "/catalog/laptops-computers",
+        ctaLabel: "Shop Laptops",
+        bgColor: "#12233F",
+        textColor: "#EDF1F5",
         sortOrder: 1,
       },
       {
         type: "PROMO_SMALL" as const,
-        title: "Kids",
-        subtitle: "Built for play",
-        linkUrl: "/catalog/kids",
-        ctaLabel: "Shop Kids",
-        bgColor: "#DBEAFE",
-        textColor: "#1E40AF",
+        title: "Smart Home",
+        subtitle: "Matter-native, aware",
+        linkUrl: "/catalog/smart-home",
+        ctaLabel: "Shop Smart Home",
+        bgColor: "#1F1A3A",
+        textColor: "#EDF1F5",
         sortOrder: 2,
       },
     ];
@@ -197,12 +193,12 @@ export async function POST() {
     const widePromo = {
       type: "PROMO_WIDE" as const,
       title: "Free UK shipping over £100",
-      subtitle: "14-day returns on every order",
-      description: "Sustainably sourced apparel shipped from the United Kingdom. No fine print, no surprises.",
+      subtitle: "Same-day dispatch on orders before 14:00",
+      description: "Precision-engineered electronics shipped from the United Kingdom. 30-day returns, 2-year warranty, no fine print.",
       linkUrl: "/catalog",
-      ctaLabel: "Shop the edit",
-      bgColor: "#ECFDF5",
-      textColor: "#065F46",
+      ctaLabel: "Shop the catalog",
+      bgColor: "#0B0E14",
+      textColor: "#EDF1F5",
       badgeText: "ALWAYS ON",
       sortOrder: 0,
     };
@@ -214,13 +210,9 @@ export async function POST() {
     });
 
     // ── Brands ─────────────────────────────────────────
-    // Apparel POD/wholesale brands that ship the pieces in our catalog.
-    // linkUrl points to /catalog since we don't ship a /brands/[slug] route
-    // — clicking a brand should land on the full catalog for now.
     const brands = [
-      "Champion", "Gildan", "Bella + Canvas", "Lane Seven",
-      "Stanley/Stella", "Comfort Colors", "AS Colour", "Next Level",
-      "Cotton Heritage", "Independent Trading Co.", "Just Hoods", "Awdis",
+      "Apple", "Samsung", "LG", "Sony", "HP", "Dell", "Lenovo", "ASUS",
+      "Acer", "MSI", "Logitech", "Microsoft", "Intel", "AMD",
     ];
 
     for (let i = 0; i < brands.length; i++) {
@@ -239,11 +231,11 @@ export async function POST() {
     }
 
     // ── Homepage Sections ──────────────────────────────
-    // categorySlug values must match Category.slug rows imported from the WooCommerce export.
+    // categorySlug values match real Category.slug rows in the DB.
     const sections = [
       {
         title: "Best Deals",
-        subtitle: "Save on selected pieces",
+        subtitle: "Save on selected electronics",
         slug: "best-deals",
         filterType: "onSale",
         maxProducts: 5,
@@ -255,7 +247,7 @@ export async function POST() {
       },
       {
         title: "New Arrivals",
-        subtitle: "Fresh in this week",
+        subtitle: "Fresh drops this week",
         slug: "new-arrivals",
         filterType: "newest",
         maxProducts: 5,
@@ -266,60 +258,60 @@ export async function POST() {
         sortOrder: 1,
       },
       {
-        title: "Men's Essentials",
-        subtitle: "Tees, hoodies and bottoms",
-        slug: "mens-essentials",
+        title: "Laptops & Computers",
+        subtitle: "Silicon-native, sustained performance",
+        slug: "laptops-computers",
         filterType: "category",
-        categorySlug: "men",
+        categorySlug: "laptops-computers",
         maxProducts: 5,
-        viewAllUrl: "/catalog/men",
-        viewAllLabel: "Shop Men",
+        viewAllUrl: "/catalog/laptops-computers",
+        viewAllLabel: "Shop laptops",
         bgStyle: "white",
         columns: 5,
         sortOrder: 2,
       },
       {
-        title: "Women's Edit",
-        subtitle: "Everyday to activewear",
-        slug: "womens-edit",
+        title: "Audio & Headphones",
+        subtitle: "Studio-grade cans, IEMs & speakers",
+        slug: "audio-headphones",
         filterType: "category",
-        categorySlug: "women",
+        categorySlug: "audio-headphones",
         maxProducts: 5,
-        viewAllUrl: "/catalog/women",
-        viewAllLabel: "Shop Women",
+        viewAllUrl: "/catalog/audio-headphones",
+        viewAllLabel: "Shop audio",
         bgStyle: "white",
         columns: 5,
         sortOrder: 3,
       },
       {
-        title: "Swimwear",
-        subtitle: "Made for the season",
-        slug: "swimwear",
+        title: "Smartphones & Tablets",
+        subtitle: "Flagship phones, pro tablets",
+        slug: "smartphones-tablets",
         filterType: "category",
-        categorySlug: "women-swimwear",
+        categorySlug: "smartphones-tablets",
         maxProducts: 5,
-        viewAllUrl: "/catalog/women-swimwear",
-        viewAllLabel: "Shop swimwear",
+        viewAllUrl: "/catalog/smartphones-tablets",
+        viewAllLabel: "Shop mobile",
         bgStyle: "gray",
         columns: 5,
         sortOrder: 4,
       },
       {
-        title: "Kids Collection",
-        subtitle: "Built for play",
-        slug: "kids-collection",
+        title: "Displays & Monitors",
+        subtitle: "4K IPS, ultrawide, calibrated OLED",
+        slug: "displays-monitors",
         filterType: "category",
-        categorySlug: "kids",
+        categorySlug: "displays-monitors",
         maxProducts: 5,
-        viewAllUrl: "/catalog/kids",
-        viewAllLabel: "Shop Kids",
+        viewAllUrl: "/catalog/displays-monitors",
+        viewAllLabel: "Shop displays",
         bgStyle: "white",
         columns: 5,
         sortOrder: 5,
       },
       {
         title: "Featured",
-        subtitle: "Hand-picked by the team",
+        subtitle: "Hand-picked by our team",
         slug: "featured",
         filterType: "featured",
         maxProducts: 5,

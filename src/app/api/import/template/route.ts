@@ -9,12 +9,12 @@ export async function GET() {
   ];
 
   const sampleRow = [
-    "Unisex Organic Cotton Tee", "SKU-001", "24.50", "29.99", "100",
-    "Soft midweight jersey, side-seamed for a modern fit. GOTS-certified organic cotton, printed and finished in the EU.",
-    "Midweight organic tee. Regular fit. Unisex sizing.",
-    "Men", "T-shirts", "",
-    "Stanley/Stella", "0.18", "ACTIVE", "", "", "", "", "Apparel & Accessories > Clothing > Shirts & Tops", "new",
-    "Material>>Fabric:100% organic cotton|Material>>Weight:180 g/m²|Fit>>Cut:Regular unisex fit|Care>>Wash:Machine wash cold, tumble dry low|Origin>>Country:EU",
+    "Reference Studio Monitors — Pair", "SKU-001", "1249.00", "1549.00", "20",
+    "Studio-grade near-field monitors with balanced-drive tweeters, tuned for flat frequency response and low listener fatigue.",
+    "Balanced 6.5\" near-field pair · 200W / channel · XLR + TRS.",
+    "Audio & Headphones", "Speakers", "",
+    "Electreia Reference", "8.5", "ACTIVE", "", "", "", "", "Electronics > Audio > Speakers > Studio Monitors", "new",
+    "Driver>>Woofer:6.5\" Kevlar|Driver>>Tweeter:1\" silk dome|Power>>Rating:200W per channel|Input>>Connector:XLR + TRS|Frequency>>Response:38Hz–22kHz",
   ];
 
   const csv = [headers.join(","), sampleRow.join(",")].join("\n");

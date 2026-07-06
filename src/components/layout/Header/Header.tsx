@@ -238,7 +238,9 @@ function useDropdownDismiss(onClose: () => void) {
 export function Header() {
   const t = useTranslations("nav");
   const router = useRouter();
-  const { itemCount, cartBounce, items, subtotal, removeItem } = useCart();
+  const { itemCount, cartBounce, cart, removeItem } = useCart();
+  const items = cart.items;
+  const subtotal = cart.subtotal;
   const { user, role } = useAuth();
 
   const [scrolled, setScrolled] = useState(false);

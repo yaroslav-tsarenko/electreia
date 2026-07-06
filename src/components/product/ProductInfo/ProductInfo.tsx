@@ -13,16 +13,16 @@ import { useRouter } from "@/i18n/routing";
 import { toast } from "sonner";
 
 /**
- * Optional apparel add-ons offered on the PDP alongside the main product —
- * flat-priced, unlike the retired warranty tiers that scaled with product
- * cost. Naming keys are kept aligned with the "warrantyOption{n}year"
- * translations so we don't have to churn every locale.
+ * Optional electronics add-ons offered on the PDP alongside the main product.
+ * Naming keys are kept aligned with the "warrantyOption{n}year" translation
+ * keys so we don't have to churn every locale — the labels themselves now
+ * cover extended warranty / accidental damage / priority dispatch.
  */
 const EXTRAS_OPTIONS = [
-  { key: "none", labelKey: "noWarranty" as const,          nameSuffix: "",                        price: 0 },
-  { key: "gift", labelKey: "warrantyOption1year" as const, nameSuffix: "+ gift wrap",             price: 3.99 },
-  { key: "care", labelKey: "warrantyOption2year" as const, nameSuffix: "+ care kit",              price: 6.99 },
-  { key: "prio", labelKey: "warrantyOption3year" as const, nameSuffix: "+ priority dispatch",     price: 4.99 },
+  { key: "none", labelKey: "noWarranty" as const,          nameSuffix: "",                             price: 0 },
+  { key: "ext",  labelKey: "warrantyOption1year" as const, nameSuffix: "+ extended 3-yr warranty",     price: 24.99 },
+  { key: "adp",  labelKey: "warrantyOption2year" as const, nameSuffix: "+ accidental damage cover",    price: 34.99 },
+  { key: "prio", labelKey: "warrantyOption3year" as const, nameSuffix: "+ priority dispatch",          price: 4.99 },
 ];
 
 function calcExtraPrice(option: typeof EXTRAS_OPTIONS[number]): number {

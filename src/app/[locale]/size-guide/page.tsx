@@ -1,39 +1,52 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Ruler, Info } from "lucide-react";
+import { ArrowRight, Ruler, Info, Cable, Battery } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Size Guide",
+  title: "Spec Reference",
   description:
-    "Electreia sizing guide — find your fit across our men's, women's and kids' collections. Chest, waist and hip measurements in cm and inches.",
+    "Electreia spec reference — dimensions, weight and connector guide across laptops, monitors, audio, mobile and accessories.",
 };
 
-const ADULT_TOPS = [
-  { size: "XS",  chest: "82–86",   waist: "66–70",   hip: "89–93" },
-  { size: "S",   chest: "86–91",   waist: "71–75",   hip: "94–98" },
-  { size: "M",   chest: "92–97",   waist: "76–81",   hip: "99–103" },
-  { size: "L",   chest: "98–103",  waist: "82–87",   hip: "104–108" },
-  { size: "XL",  chest: "104–109", waist: "88–93",   hip: "109–113" },
-  { size: "2XL", chest: "110–117", waist: "94–101",  hip: "114–121" },
-  { size: "3XL", chest: "118–125", waist: "102–109", hip: "122–129" },
+const LAPTOP_SIZES = [
+  { size: "13\"",  screen: "13.3–13.6",  weight: "0.9–1.2", best: "Ultra-portable · commute" },
+  { size: "14\"",  screen: "14.0–14.2",  weight: "1.1–1.5", best: "Work + travel · daily driver" },
+  { size: "15\"",  screen: "15.3–15.6",  weight: "1.4–1.8", best: "Content · light gaming" },
+  { size: "16\"",  screen: "16.0–16.2",  weight: "1.8–2.2", best: "Pro workflows · creators" },
+  { size: "17\"",  screen: "17.0–17.3",  weight: "2.3–2.9", best: "Desktop replacement · gaming" },
 ];
 
-const KIDS_TOPS = [
-  { size: "2T",  age: "2 years",   height: "89–94" },
-  { size: "3T",  age: "3 years",   height: "95–102" },
-  { size: "4T",  age: "4 years",   height: "103–110" },
-  { size: "5T",  age: "5 years",   height: "111–116" },
-  { size: "6",   age: "6 years",   height: "117–122" },
-  { size: "6X",  age: "6X years",  height: "123–128" },
-  { size: "8Y",  age: "7–8 years", height: "128–134" },
-  { size: "10Y", age: "9–10 years", height: "134–140" },
-  { size: "12Y", age: "11–12 years", height: "146–152" },
+const MONITOR_SIZES = [
+  { size: "24\"",  resolution: "1920×1080 / 2560×1440", best: "Office · productivity" },
+  { size: "27\"",  resolution: "2560×1440 / 3840×2160", best: "General · light creative" },
+  { size: "32\"",  resolution: "2560×1440 / 3840×2160", best: "Immersive · dev · video edit" },
+  { size: "34\"",  resolution: "3440×1440 ultrawide",   best: "Multitasking · trading" },
+  { size: "49\"",  resolution: "5120×1440 super-ultra", best: "Pro workstations" },
 ];
 
-const HOW_TO = [
-  { title: "Chest", detail: "Measure around the fullest part of your chest, under your arms. Keep the tape parallel to the floor." },
-  { title: "Waist", detail: "Measure at the narrowest point of your waist — usually just above the belly button." },
-  { title: "Hip",   detail: "Measure around the fullest part of your hips, roughly 20 cm below your waistline." },
+const CONNECTORS = [
+  {
+    title: "USB-C · Thunderbolt 4",
+    detail:
+      "Universal connector for data, power and display. Thunderbolt 4 delivers up to 40 Gbps, 100W charging and dual 4K displays.",
+  },
+  {
+    title: "HDMI 2.1",
+    detail:
+      "4K @ 120Hz or 8K @ 60Hz, VRR, ALLM. Standard for consoles, TVs and modern monitors.",
+  },
+  {
+    title: "DisplayPort 2.1",
+    detail:
+      "Up to 80 Gbps, 8K @ 60Hz HDR. Preferred for desktop PC → monitor connections at high refresh.",
+  },
+];
+
+const AUDIO_TIERS = [
+  { tier: "Entry",     price: "£30–£120",  detail: "Great for daily commute, calls and casual listening." },
+  { tier: "Enthusiast", price: "£120–£350", detail: "Balanced tuning, ANC, better drivers, all-day comfort." },
+  { tier: "Pro",       price: "£350–£1,200", detail: "Reference tuning, planar/balanced-armature drivers, studio-grade." },
+  { tier: "Reference", price: "£1,200+",   detail: "Flagship cans, tuned DACs, mastering-grade monitors." },
 ];
 
 function Table({
@@ -49,7 +62,10 @@ function Table({
         <thead className="bg-[color:var(--color-bg-secondary)] text-left text-[color:var(--color-text)]">
           <tr>
             {headers.map((h) => (
-              <th key={h} className="border-b border-[color:var(--color-line)] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.14em]">
+              <th
+                key={h}
+                className="border-b border-[color:var(--color-line)] px-4 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.14em]"
+              >
                 {h}
               </th>
             ))}
@@ -59,13 +75,19 @@ function Table({
           {rows.map((row, i) => (
             <tr
               key={i}
-              className={i % 2 === 0 ? "bg-[color:var(--color-bg-elevated)]" : "bg-[color:var(--color-bg)]"}
+              className={
+                i % 2 === 0
+                  ? "bg-[color:var(--color-bg-elevated)]"
+                  : "bg-[color:var(--color-bg)]"
+              }
             >
               {row.map((cell, j) => (
                 <td
                   key={j}
                   className={`border-b border-[color:var(--color-line)] px-4 py-3 ${
-                    j === 0 ? "font-semibold text-[color:var(--color-text)]" : "text-[color:var(--color-text-secondary)]"
+                    j === 0
+                      ? "font-mono font-semibold text-[color:var(--color-text)] tabular-nums"
+                      : "text-[color:var(--color-text-secondary)]"
                   }`}
                 >
                   {cell}
@@ -84,32 +106,77 @@ export default function SizeGuidePage() {
     <div className="mx-auto w-full max-w-[var(--container-content)] px-4 pb-20 pt-8 sm:px-6 lg:px-8">
       {/* Hero */}
       <div className="mb-10 flex flex-col gap-3 border-b border-[color:var(--color-line)] pb-8 sm:mb-14">
-        <span className="eyebrow">Electreia · Guide</span>
-        <h1 className="font-serif text-[36px] font-medium leading-tight tracking-tight text-[color:var(--color-text)] sm:text-[52px]">
-          Size guide
+        <span className="eyebrow">Electreia · Reference</span>
+        <h1 className="font-display text-[36px] font-semibold leading-tight tracking-tight text-[color:var(--color-text)] sm:text-[52px]">
+          Spec reference
         </h1>
         <p className="max-w-2xl text-base leading-relaxed text-[color:var(--color-text-secondary)] sm:text-lg">
-          All measurements in centimetres. Our fits run true to modern
-          international sizing — if you're between two sizes, size up for a
-          relaxed silhouette or size down for a fitted look.
+          Quick reference for the things people ask before they buy: laptop
+          form factors, monitor resolutions, connector standards and audio
+          tiers. If you&apos;re still unsure — ping our support team, we answer
+          in under 2 hours.
         </p>
       </div>
 
-      {/* How to measure */}
+      {/* Laptops */}
+      <section className="mb-14">
+        <div className="mb-6 flex items-baseline justify-between gap-4">
+          <div>
+            <span className="eyebrow">Compute</span>
+            <h2 className="font-display text-2xl font-semibold tracking-tight text-[color:var(--color-text)]">
+              Laptop form factors
+            </h2>
+          </div>
+          <Link
+            href="/catalog/laptops-computers"
+            className="hidden font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-primary)] hover:underline sm:inline-flex sm:items-center sm:gap-1"
+          >
+            Shop laptops <ArrowRight size={14} />
+          </Link>
+        </div>
+        <Table
+          headers={["Size", "Screen (in)", "Weight (kg)", "Best for"]}
+          rows={LAPTOP_SIZES.map((r) => [r.size, r.screen, r.weight, r.best])}
+        />
+      </section>
+
+      {/* Monitors */}
+      <section className="mb-14">
+        <div className="mb-6 flex items-baseline justify-between gap-4">
+          <div>
+            <span className="eyebrow">Displays</span>
+            <h2 className="font-display text-2xl font-semibold tracking-tight text-[color:var(--color-text)]">
+              Monitor sizes &amp; resolutions
+            </h2>
+          </div>
+          <Link
+            href="/catalog/displays-monitors"
+            className="hidden font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-primary)] hover:underline sm:inline-flex sm:items-center sm:gap-1"
+          >
+            Shop monitors <ArrowRight size={14} />
+          </Link>
+        </div>
+        <Table
+          headers={["Size", "Resolution", "Best for"]}
+          rows={MONITOR_SIZES.map((r) => [r.size, r.resolution, r.best])}
+        />
+      </section>
+
+      {/* Connectors */}
       <section className="mb-14">
         <div className="mb-6 flex items-center gap-2 text-[color:var(--color-text)]">
-          <Ruler size={18} className="text-[color:var(--color-primary)]" />
-          <h2 className="font-serif text-2xl font-medium tracking-tight">
-            How to measure
+          <Cable size={18} className="text-[color:var(--color-primary)]" />
+          <h2 className="font-display text-2xl font-semibold tracking-tight">
+            Connectors
           </h2>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {HOW_TO.map((item) => (
+          {CONNECTORS.map((item) => (
             <div
               key={item.title}
               className="rounded-2xl border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] p-5"
             >
-              <h3 className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-[color:var(--color-primary)]">
+              <h3 className="mb-2 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-primary)]">
                 {item.title}
               </h3>
               <p className="text-sm leading-relaxed text-[color:var(--color-text-secondary)]">
@@ -120,60 +187,53 @@ export default function SizeGuidePage() {
         </div>
       </section>
 
-      {/* Adult tops */}
+      {/* Audio tiers */}
       <section className="mb-14">
         <div className="mb-6 flex items-baseline justify-between gap-4">
           <div>
-            <span className="eyebrow">Men &amp; Women</span>
-            <h2 className="font-serif text-2xl font-medium tracking-tight text-[color:var(--color-text)]">
-              Adult tops &amp; bottoms
+            <span className="eyebrow">Audio</span>
+            <h2 className="font-display text-2xl font-semibold tracking-tight text-[color:var(--color-text)]">
+              Audio tiers
             </h2>
           </div>
           <Link
-            href="/catalog"
-            className="hidden text-sm font-semibold text-[color:var(--color-primary)] hover:underline sm:inline-flex sm:items-center sm:gap-1"
+            href="/catalog/audio-headphones"
+            className="hidden font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-primary)] hover:underline sm:inline-flex sm:items-center sm:gap-1"
           >
-            Shop apparel <ArrowRight size={14} />
+            Shop audio <ArrowRight size={14} />
           </Link>
         </div>
         <Table
-          headers={["Size", "Chest (cm)", "Waist (cm)", "Hip (cm)"]}
-          rows={ADULT_TOPS.map((r) => [r.size, r.chest, r.waist, r.hip])}
+          headers={["Tier", "Price", "What you get"]}
+          rows={AUDIO_TIERS.map((r) => [r.tier, r.price, r.detail])}
         />
       </section>
 
-      {/* Kids */}
-      <section className="mb-14">
-        <div className="mb-6">
-          <span className="eyebrow">Kids</span>
-          <h2 className="font-serif text-2xl font-medium tracking-tight text-[color:var(--color-text)]">
-            Kids &amp; youth
-          </h2>
+      {/* Note */}
+      <section className="rounded-2xl border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] p-6">
+        <div className="mb-2 flex items-center gap-2 text-[color:var(--color-text)]">
+          <Info size={16} className="text-[color:var(--color-primary)]" />
+          <h3 className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em]">
+            Battery &amp; compatibility notes
+          </h3>
         </div>
-        <Table
-          headers={["Size", "Age", "Height (cm)"]}
-          rows={KIDS_TOPS.map((r) => [r.size, r.age, r.height])}
-        />
+        <p className="text-sm leading-relaxed text-[color:var(--color-text-secondary)]">
+          Advertised laptop battery life is measured under standard test
+          conditions — real-world figures typically run 70-85% of the rated
+          time depending on brightness, workload and radio use. Charger
+          wattage should match the manufacturer&apos;s spec: too low won&apos;t
+          charge, higher is safe.
+        </p>
       </section>
 
-      {/* Fit note */}
-      <section className="rounded-2xl border border-[color:var(--color-line)] bg-[color:var(--color-bg-secondary)] p-6 sm:p-8">
-        <div className="flex items-start gap-3">
-          <Info size={20} className="mt-0.5 shrink-0 text-[color:var(--color-primary)]" strokeWidth={1.5} />
-          <div className="flex flex-col gap-2">
-            <h3 className="text-base font-semibold text-[color:var(--color-text)]">
-              A note on fit
-            </h3>
-            <p className="text-sm leading-relaxed text-[color:var(--color-text-secondary)]">
-              Individual measurements can vary by up to 5 % due to the natural
-              stretch and shrinkage of our organic and recycled fabrics. If
-              your order doesn't fit as expected, we offer 14-day free returns
-              — see our <Link href="/policies/returns" className="text-[color:var(--color-primary)] underline">returns policy</Link> or
-              email <a href="mailto:info@electreia.co.uk" className="text-[color:var(--color-primary)] underline">info@electreia.co.uk</a>.
-            </p>
-          </div>
-        </div>
-      </section>
+      <div className="mt-10 flex items-center justify-center">
+        <Link
+          href="/catalog"
+          className="inline-flex items-center gap-2 rounded-lg bg-[color:var(--color-primary)] px-5 py-3 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-white transition-all hover:bg-[color:var(--color-primary-hover)]"
+        >
+          <Battery size={13} /> Browse catalog <ArrowRight size={13} />
+        </Link>
+      </div>
     </div>
   );
 }
