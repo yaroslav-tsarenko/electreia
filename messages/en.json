@@ -98,12 +98,12 @@
     "nameAZ": "Name: A to Z",
     "showing": "Showing {count} of {total} products",
     "shareProduct": "Share",
-    "freeShipping": "Free Shipping",
-    "freeShippingDesc": "on orders over €50",
-    "easyReturns": "Easy Returns",
-    "easyReturnsDesc": "14-day return policy",
-    "securePayment": "Secure Payment",
-    "securePaymentDesc": "SSL encrypted checkout"
+    "freeShipping": "Free UK shipping",
+    "freeShippingDesc": "on orders over £100",
+    "easyReturns": "30-day returns",
+    "easyReturnsDesc": "no fine print, no hassle",
+    "securePayment": "Secure checkout",
+    "securePaymentDesc": "PCI-DSS · 256-bit SSL"
   },
   "cart": {
     "title": "Shopping Cart",
