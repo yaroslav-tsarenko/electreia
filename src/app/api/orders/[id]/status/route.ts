@@ -6,6 +6,7 @@ import {
   sendOrderStatusEmail,
 } from "@/lib/email";
 import { scheduleEmail } from "@/lib/email-jobs";
+import { createTransfermitRefund } from "@/lib/transfermit";
 
 const statusSchema = z.object({
   status: z.enum([
@@ -25,8 +26,35 @@ export async function PATCH(
 
     const previous = await prisma.order.findUnique({
       where: { id },
-      select: { status: true },
+      select: { status: true, paymentMethod: true, paymentId: true, total: true },
     });
+
+    if (!previous) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    // If order status is set to REFUNDED and was paid via transfermit, trigger Transfermit Refund API
+    if (
+      validated.status === "REFUNDED" &&
+      previous.status !== "REFUNDED" &&
+      previous.paymentMethod === "transfermit" &&
+      previous.paymentId
+    ) {
+      try {
+        await createTransfermitRefund({
+          paymentType: "REFUND",
+          parentPaymentId: previous.paymentId,
+          amount: Number(previous.total),
+          currency: "EUR",
+        });
+      } catch (refundError) {
+        console.error("[TRANSFERMIT REFUND] Failed to process automatic refund:", refundError);
+        return NextResponse.json(
+          { error: "Failed to process refund on Transfermit payment gateway." },
+          { status: 502 }
+        );
+      }
+    }
 
     const order = await prisma.order.update({
       where: { id },
@@ -40,6 +68,7 @@ export async function PATCH(
       },
       include: { items: true },
     });
+
 
     const statusChanged = previous?.status !== order.status;
     if (statusChanged) {
