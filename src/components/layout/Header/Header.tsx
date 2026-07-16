@@ -332,8 +332,9 @@ export function Header() {
     if (!q) return;
     pushRecent(q);
     const scopePath = scope === "all" ? "" : `&category=${scope}`;
-    router.push(`/en/search?q=${encodeURIComponent(q)}${scopePath}`);
+    router.push(`/${locale}/search?q=${encodeURIComponent(q)}${scopePath}`);
     setSearchFocus(false);
+    setScopeOpen(false);
   };
 
   const findLiveDept = (slug: string) =>
