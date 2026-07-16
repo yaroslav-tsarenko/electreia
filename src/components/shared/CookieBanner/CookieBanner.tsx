@@ -127,25 +127,25 @@ export function CookieBanner() {
                     </button>
                   </div>
 
-                  <div className="flex flex-col gap-2 lg:ml-auto lg:flex-row lg:items-center">
+                  <div className="flex w-full flex-col gap-2 lg:ml-auto lg:w-auto lg:flex-row lg:items-center lg:gap-3">
                     <button
                       type="button"
                       onClick={() => setSettingsOpen((v) => !v)}
-                      className="inline-flex h-11 items-center justify-center rounded-xl border border-[color:var(--color-line)] px-4 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-text)] transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
+                      className="inline-flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-xl border border-[color:var(--color-line)] px-6 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--color-text)] transition-colors hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]"
                     >
                       {settingsOpen ? "Hide preferences" : "Manage preferences"}
                     </button>
                     <button
                       type="button"
                       onClick={rejectAll}
-                      className="inline-flex h-11 items-center justify-center rounded-xl border border-[color:var(--color-line)] px-4 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-text-secondary)] transition-colors hover:border-[color:var(--color-line-strong)] hover:text-[color:var(--color-text)]"
+                      className="inline-flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-xl border border-[color:var(--color-line)] px-6 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--color-text-secondary)] transition-colors hover:border-[color:var(--color-line-strong)] hover:text-[color:var(--color-text)]"
                     >
                       Reject non-essential
                     </button>
                     <button
                       type="button"
                       onClick={acceptAll}
-                      className="inline-flex h-11 items-center justify-center rounded-xl bg-[color:var(--color-primary)] px-5 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-white transition-all hover:bg-[color:var(--color-primary-hover)] hover:shadow-[0_0_24px_var(--color-primary-tint)]"
+                      className="inline-flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-xl bg-[color:var(--color-primary)] px-7 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-white transition-all hover:bg-[color:var(--color-primary-hover)] hover:shadow-[0_0_24px_var(--color-primary-tint)]"
                     >
                       Accept all
                     </button>
