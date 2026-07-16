@@ -8,6 +8,7 @@ import { motion, useInView } from "framer-motion";
 import { formatPrice } from "@/lib/utils/format-price";
 import { getProductImage, getProductImageFallback } from "@/lib/utils/product-image";
 import { getDiscountPercent, type HomepageProduct } from "@/lib/homepage-products";
+import { useCurrency } from "@/providers/CurrencyProvider";
 
 interface Props {
   products: HomepageProduct[];
@@ -17,6 +18,7 @@ export function SaleStrip({ products }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-40px" });
+  const { currency, convert } = useCurrency();
 
   const scroll = (dir: number) => {
     scrollRef.current?.scrollBy({ left: dir * 340, behavior: "smooth" });
@@ -115,11 +117,11 @@ export function SaleStrip({ products }: Props) {
                   </h4>
                   <div className="flex items-baseline gap-2">
                     <span className="text-base font-semibold text-[color:var(--color-accent)]">
-                      {formatPrice(Number(p.price))}
+                      {formatPrice(convert(Number(p.price)), currency)}
                     </span>
                     {p.comparePrice && (
                       <span className="text-xs text-[color:var(--color-text-tertiary)] line-through">
-                        {formatPrice(Number(p.comparePrice))}
+                        {formatPrice(convert(Number(p.comparePrice)), currency)}
                       </span>
                     )}
                   </div>

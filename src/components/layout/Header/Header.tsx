@@ -380,7 +380,7 @@ export function Header() {
         {/* ── Tier 1 · Utility strip (collapses on scroll) ─────────────── */}
         <div
           className={[
-            "overflow-hidden bg-[color:var(--color-header)] text-[color:var(--color-primary-fg)] transition-[max-height,opacity] duration-300",
+            "overflow-hidden bg-[color:var(--color-header)] text-[color:var(--color-header-fg)] transition-[max-height,opacity] duration-300",
             scrolled ? "max-h-0 opacity-0" : "max-h-9 opacity-100",
           ].join(" ")}
           aria-hidden={scrolled}

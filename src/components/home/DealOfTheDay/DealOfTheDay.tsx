@@ -8,6 +8,7 @@ import { motion, useInView } from "framer-motion";
 import { formatPrice } from "@/lib/utils/format-price";
 import { getProductImage, getProductImageFallback } from "@/lib/utils/product-image";
 import { getDiscountPercent, type HomepageProduct } from "@/lib/homepage-products";
+import { useCurrency } from "@/providers/CurrencyProvider";
 
 interface Props {
   product: HomepageProduct;
@@ -28,6 +29,7 @@ export function DealOfTheDay({ product }: Props) {
   const [time, setTime] = useState<ReturnType<typeof getTimeUntilMidnight> | null>(null);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-60px" });
+  const { currency, convert } = useCurrency();
 
   useEffect(() => {
     const update = () => setTime(getTimeUntilMidnight());
@@ -87,11 +89,11 @@ export function DealOfTheDay({ product }: Props) {
         </p>
         <div className="flex flex-wrap items-baseline gap-3">
           <span className="font-serif text-4xl font-medium text-[color:var(--color-accent)] sm:text-5xl">
-            {formatPrice(Number(product.price))}
+            {formatPrice(convert(Number(product.price)), currency)}
           </span>
           {product.comparePrice && (
             <span className="text-lg text-white/50 line-through">
-              {formatPrice(Number(product.comparePrice))}
+              {formatPrice(convert(Number(product.comparePrice)), currency)}
             </span>
           )}
           {discount > 0 && (

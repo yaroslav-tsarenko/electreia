@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Link } from "@/i18n/routing";
 import { Heart, ShoppingBag, Star, Eye } from "lucide-react";
 import { useCart } from "@/providers/CartProvider";
+import { useCurrency } from "@/providers/CurrencyProvider";
 import { formatPrice } from "@/lib/utils/format-price";
 import { getProductImage, getPicsumFallback } from "@/lib/utils/product-image";
 
@@ -25,6 +26,7 @@ interface Props {
 
 export function MarketplaceProductCard({ product }: Props) {
   const { addItem } = useCart();
+  const { currency, convert } = useCurrency();
   const price = Number(product.price);
   const comparePrice = product.comparePrice ? Number(product.comparePrice) : null;
   const hasDiscount = !!(comparePrice && comparePrice > price);
@@ -129,11 +131,11 @@ export function MarketplaceProductCard({ product }: Props) {
                 hasDiscount ? "text-[color:var(--color-accent)]" : "text-[color:var(--color-text)]"
               }`}
             >
-              {formatPrice(price)}
+              {formatPrice(convert(price), currency)}
             </span>
             {hasDiscount && (
               <span className="text-[11px] text-[color:var(--color-text-tertiary)] line-through">
-                {formatPrice(comparePrice!)}
+                {formatPrice(convert(comparePrice!), currency)}
               </span>
             )}
           </div>

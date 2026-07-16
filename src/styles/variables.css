@@ -28,8 +28,12 @@
   --color-price: var(--color-primary);
   --color-cta: var(--color-primary);
   --color-cta-hover: var(--color-primary-hover);
-  --color-header: #FFFFFF;
-  --color-header-secondary: #F4F6F8;
+  /* Top utility strip — kept dark in both themes so it always reads as a
+     "chrome" surface distinct from the page below. */
+  --color-header: #0E1116;
+  --color-header-secondary: #1B2030;
+  --color-header-fg: #EDF1F5;
+  --color-header-fg-muted: rgba(237, 241, 245, 0.72);
 
   /* Legacy aliases used across older components */
   --color-accent-light: var(--color-accent-tint);
@@ -145,6 +149,8 @@
   --color-cta-hover: var(--color-primary-hover);
   --color-header: #0B0E14;
   --color-header-secondary: #141821;
+  --color-header-fg: #EDF1F5;
+  --color-header-fg-muted: rgba(237, 241, 245, 0.72);
 
   --color-accent-light: var(--color-accent-tint);
   --color-accent-2: var(--color-violet);
