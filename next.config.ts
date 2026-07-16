@@ -47,6 +47,22 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "*.cdnbigbuy.com",
       },
+      {
+        protocol: "https",
+        hostname: "electreia.co.uk",
+      },
+      {
+        protocol: "https",
+        hostname: "www.electreia.co.uk",
+      },
+      {
+        protocol: "https",
+        hostname: "ravora.co.uk",
+      },
+      {
+        protocol: "https",
+        hostname: "www.ravora.co.uk",
+      },
     ],
   },
   headers: async () => [

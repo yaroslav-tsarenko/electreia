@@ -4,14 +4,6 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import {
-  FaLinkedinIn,
-  FaInstagram,
-  FaXTwitter,
-  FaYoutube,
-  FaFacebookF,
-  FaTiktok,
-} from "react-icons/fa6";
-import {
   ArrowRight,
   Mail,
   Phone,
@@ -23,7 +15,6 @@ import {
   Repeat,
   Award,
   Lock,
-  Star,
   Smartphone,
   ChevronDown,
 } from "lucide-react";
@@ -104,15 +95,6 @@ const trustBadges = [
   { icon: RotateCcw,   label: "30-day returns" },
   { icon: ShieldCheck, label: "2-year warranty" },
   { icon: Repeat,      label: "Trade-in credit" },
-];
-
-const socialLinks = [
-  { icon: FaLinkedinIn, label: "LinkedIn",  env: process.env.NEXT_PUBLIC_LINKEDIN_URL },
-  { icon: FaInstagram,  label: "Instagram", env: process.env.NEXT_PUBLIC_INSTAGRAM_URL },
-  { icon: FaXTwitter,   label: "X",         env: process.env.NEXT_PUBLIC_TWITTER_URL },
-  { icon: FaFacebookF,  label: "Facebook",  env: process.env.NEXT_PUBLIC_FACEBOOK_URL },
-  { icon: FaYoutube,    label: "YouTube",   env: process.env.NEXT_PUBLIC_YOUTUBE_URL },
-  { icon: FaTiktok,     label: "TikTok",    env: process.env.NEXT_PUBLIC_TIKTOK_URL },
 ];
 
 interface Column {
@@ -346,32 +328,22 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Payment / security / rating */}
+          {/* Payment / security */}
           <div className="flex flex-col gap-4 lg:items-end">
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-4">
               {[
                 { src: visaLogo, alt: "Visa" },
                 { src: mastercardLogo, alt: "Mastercard" },
                 { src: pciDssLogo, alt: "PCI DSS Compliant" },
               ].map(({ src, alt }) => (
-                <span
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
                   key={alt}
-                  className="inline-flex h-8 items-center rounded-md border border-[#232A36] bg-[#141821] px-2"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={src.src}
-                    alt={alt}
-                    style={{
-                      height: 18,
-                      width: "auto",
-                      maxWidth: "none",
-                      display: "inline-block",
-                      filter: "grayscale(0.2) brightness(1.1)",
-                    }}
-                    className="shrink-0"
-                  />
-                </span>
+                  src={src.src}
+                  alt={alt}
+                  style={{ height: 60, width: "auto", maxWidth: "none" }}
+                  className="shrink-0 object-contain"
+                />
               ))}
               <span className="inline-flex items-center gap-1.5 rounded-md border border-[#232A36] bg-[#141821] px-2.5 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[#EDF1F5]/85">
                 <Lock size={11} className="text-[color:var(--color-success)]" />
@@ -381,37 +353,6 @@ export function Footer() {
                 <Award size={11} className="text-[color:var(--color-warning)]" />
                 Buyer Protection
               </span>
-            </div>
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="inline-flex items-center gap-2 rounded-md border border-[#232A36] bg-[#141821] px-3 py-1.5">
-                <div className="flex items-center gap-0.5 text-[color:var(--color-warning)]">
-                  {[0, 1, 2, 3, 4].map((i) => (
-                    <Star key={i} size={11} className="fill-current" strokeWidth={0} />
-                  ))}
-                </div>
-                <span className="font-mono text-[11px] font-semibold text-[#EDF1F5] tabular-nums">
-                  4.9
-                </span>
-                <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#8A94A6]">
-                  Trustpilot · 12,400 reviews
-                </span>
-              </div>
-              <div className="flex items-center gap-1">
-                {socialLinks
-                  .filter((s) => s.env)
-                  .map(({ icon: Icon, label, env }) => (
-                    <a
-                      key={label}
-                      href={env}
-                      aria-label={label}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#232A36] bg-[#141821] text-[#8A94A6] transition-all hover:border-[color:var(--color-primary)] hover:text-[#EDF1F5] hover:shadow-[0_0_16px_rgba(46,125,255,0.35)]"
-                    >
-                      <Icon size={11} />
-                    </a>
-                  ))}
-              </div>
             </div>
           </div>
         </div>

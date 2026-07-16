@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ImageOff, Maximize2 } from "lucide-react";
+import { getProductImage, getPicsumFallback } from "@/lib/utils/product-image";
 
 interface ProductGalleryProps {
   images: { id: string; url: string; alt?: string | null }[];
@@ -63,12 +64,17 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
             className="relative h-full w-full"
           >
             <Image
-              src={active.url}
+              src={getProductImage(active.url, productName)}
               alt={active.alt || productName}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-contain p-6 transition-transform duration-500 ease-out group-hover:scale-[1.03] sm:p-10"
               priority
+              onError={(e) => {
+                const img = e.currentTarget as HTMLImageElement;
+                const fallback = getPicsumFallback(productName);
+                if (img.src !== fallback) img.src = fallback;
+              }}
             />
           </motion.div>
         </AnimatePresence>
@@ -99,11 +105,16 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
               >
                 <div className="pointer-events-none absolute inset-0 tech-grid opacity-25" />
                 <Image
-                  src={image.url}
+                  src={getProductImage(image.url, productName)}
                   alt={image.alt || `${productName} ${index + 1}`}
                   fill
                   sizes="76px"
                   className="relative object-contain"
+                  onError={(e) => {
+                    const img = e.currentTarget as HTMLImageElement;
+                    const fallback = getPicsumFallback(`${productName}-${index}`);
+                    if (img.src !== fallback) img.src = fallback;
+                  }}
                 />
                 {isActive && (
                   <motion.span

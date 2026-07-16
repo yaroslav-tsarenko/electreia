@@ -44,6 +44,8 @@ import {
 } from "lucide-react";
 import { useCart } from "@/providers/CartProvider";
 import { useAuth } from "@/providers/AuthProvider";
+import { useCurrency } from "@/providers/CurrencyProvider";
+import { useLocale } from "next-intl";
 import { ThemeToggle } from "./ThemeToggle";
 import { AnimatePresence, motion } from "framer-motion";
 import { ElectreiaLogo } from "../ElectreiaLogo";
@@ -242,6 +244,9 @@ export function Header() {
   const items = cart.items;
   const subtotal = cart.subtotal;
   const { user, role } = useAuth();
+  const { currency, symbol } = useCurrency();
+  const locale = useLocale();
+  const localeLabel = locale.toUpperCase();
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -434,7 +439,7 @@ export function Header() {
               <CurrencySwitcher />
               <span className="hidden h-3 w-px bg-white/20 sm:inline-block" />
               <span className="hidden font-mono text-[10px] uppercase tracking-[0.16em] text-white/70 sm:inline">
-                EN · GBP
+                {localeLabel} · {currency} {symbol}
               </span>
             </div>
           </div>
@@ -803,6 +808,9 @@ export function Header() {
                                       fill
                                       sizes="48px"
                                       className="object-contain p-1"
+                                      onError={(e) => {
+                                        (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
+                                      }}
                                     />
                                   )}
                                 </div>
@@ -941,12 +949,6 @@ export function Header() {
                 className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[color:var(--color-primary)] transition-colors hover:bg-[color:var(--color-primary-tint)]"
               >
                 <Sparkles size={12} /> New in
-              </Link>
-              <Link
-                href="/policies/warranty"
-                className="hidden items-center gap-1 rounded-md px-2 py-1 text-[color:var(--color-text)] transition-colors hover:text-[color:var(--color-primary)] xl:inline-flex"
-              >
-                B2B
               </Link>
             </div>
           </div>

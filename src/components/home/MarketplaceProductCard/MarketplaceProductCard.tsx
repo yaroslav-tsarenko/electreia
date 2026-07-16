@@ -5,7 +5,7 @@ import { Link } from "@/i18n/routing";
 import { Heart, ShoppingBag, Star, Eye } from "lucide-react";
 import { useCart } from "@/providers/CartProvider";
 import { formatPrice } from "@/lib/utils/format-price";
-import { getProductImage, getProductImageFallback } from "@/lib/utils/product-image";
+import { getProductImage, getPicsumFallback } from "@/lib/utils/product-image";
 
 interface Props {
   product: {
@@ -65,7 +65,9 @@ export function MarketplaceProductCard({ product }: Props) {
           height={280}
           className="h-full w-full object-contain p-5 mix-blend-multiply transition-transform duration-500 group-hover:scale-[1.04] dark:mix-blend-normal"
           onError={(e) => {
-            (e.target as HTMLImageElement).src = getProductImageFallback();
+            const img = e.target as HTMLImageElement;
+            const fallback = getPicsumFallback(product.name);
+            if (img.src !== fallback) img.src = fallback;
           }}
         />
         {hasDiscount && (

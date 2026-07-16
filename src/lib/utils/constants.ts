@@ -1,6 +1,6 @@
 export const PRODUCTS_PER_PAGE = 12;
 
-export const LOCALES = ["en", "lv", "ru"] as const;
+export const LOCALES = ["en", "lv"] as const;
 export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "en";
 
@@ -21,4 +21,4 @@ export const PAYMENT_STATUSES = [
   "REFUNDED",
 ] as const;
 
-export const CURRENCIES = ["EUR", "USD", "GBP"] as const;
+export const CURRENCIES = ["GBP", "USD"] as const;

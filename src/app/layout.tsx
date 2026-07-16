@@ -33,7 +33,13 @@ export const metadata: Metadata = {
     site: brand.social.twitter,
     title: brand.displayName,
   },
-  icons: { icon: "/icon.svg", apple: "/icon.svg" },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/icon.svg",
+    shortcut: "/icon.svg",
+  },
 };
 
 export default function RootLayout({

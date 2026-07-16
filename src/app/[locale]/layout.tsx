@@ -9,6 +9,7 @@ import { CurrencyProvider } from "@/providers/CurrencyProvider";
 import { ToastProvider } from "@/providers/ToastProvider";
 import { Header } from "@/components/layout/Header/Header";
 import { Footer } from "@/components/layout/Footer/Footer";
+import { CookieBanner } from "@/components/shared/CookieBanner/CookieBanner";
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -18,7 +19,7 @@ interface LocaleLayoutProps {
 export default async function LocaleLayout({ children, params }: LocaleLayoutProps) {
   const { locale } = await params;
 
-  if (!routing.locales.includes(locale as "en" | "lv" | "ru")) {
+  if (!routing.locales.includes(locale as "en" | "lv")) {
     notFound();
   }
 
@@ -36,6 +37,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
                 <Footer />
               </div>
               <ToastProvider />
+              <CookieBanner />
             </CartProvider>
           </CurrencyProvider>
         </AuthProvider>
