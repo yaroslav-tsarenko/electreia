@@ -436,7 +436,7 @@ export function Header() {
             <div className="flex items-center gap-2 text-white">
               <ThemeToggle />
               <span className="hidden h-3 w-px bg-white/20 sm:inline-block" />
-              <CurrencySwitcher />
+              <CurrencySwitcher variant="chrome" />
               <span className="hidden h-3 w-px bg-white/20 sm:inline-block" />
               <span className="hidden font-mono text-[10px] uppercase tracking-[0.16em] text-white/70 sm:inline">
                 {localeLabel} · {currency} {symbol}
@@ -605,8 +605,14 @@ export function Header() {
               </AnimatePresence>
             </div>
 
-            {/* Right cluster — Account · Compare · Wishlist · Cart */}
+            {/* Right cluster — Currency · Account · Compare · Wishlist · Cart */}
             <div className="hidden items-center gap-1 lg:flex">
+              {/* Currency selector — prominent placement so shoppers can
+                  switch GBP ↔ USD from anywhere on the site */}
+              <div className="mr-1">
+                <CurrencySwitcher variant="solid" showLabel />
+              </div>
+              <div className="mr-1 h-6 w-px bg-[color:var(--color-line)]" />
               {/* Account */}
               <div
                 ref={accountDismissRef}
