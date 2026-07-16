@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Check } from "lucide-react";
 import { useCurrency, type Currency } from "@/providers/CurrencyProvider";
 
@@ -28,7 +27,7 @@ export function CurrencySwitcher({ variant = "chrome", showLabel = false }: Curr
   const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
   const [mounted, setMounted] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const menuRef = useRef<HTMLUListElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -40,7 +39,7 @@ export function CurrencySwitcher({ variant = "chrome", showLabel = false }: Curr
       const rect = triggerRef.current!.getBoundingClientRect();
       setPos({
         top: rect.bottom + 6,
-        right: window.innerWidth - rect.right,
+        right: Math.max(8, window.innerWidth - rect.right),
       });
     };
     compute();
@@ -54,19 +53,28 @@ export function CurrencySwitcher({ variant = "chrome", showLabel = false }: Curr
 
   useEffect(() => {
     if (!open) return;
-    const onDoc = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (triggerRef.current?.contains(t)) return;
-      if (menuRef.current?.contains(t)) return;
+    // Use pointerdown (not mousedown) so it fires uniformly for mouse/touch,
+    // and check the whole event path so nested nodes inside the menu don't
+    // accidentally slip through Node.contains().
+    const onDown = (e: PointerEvent | MouseEvent) => {
+      const path = typeof (e as PointerEvent).composedPath === "function"
+        ? (e as PointerEvent).composedPath()
+        : [];
+      const trigger = triggerRef.current;
+      const menu = menuRef.current;
+      const t = e.target as Node | null;
+      const inTrigger = !!(trigger && (path.includes(trigger) || (t && trigger.contains(t))));
+      const inMenu = !!(menu && (path.includes(menu) || (t && menu.contains(t))));
+      if (inTrigger || inMenu) return;
       setOpen(false);
     };
     const onEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
     };
-    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("pointerdown", onDown, true);
     document.addEventListener("keydown", onEsc);
     return () => {
-      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("pointerdown", onDown, true);
       document.removeEventListener("keydown", onEsc);
     };
   }, [open]);
@@ -77,6 +85,11 @@ export function CurrencySwitcher({ variant = "chrome", showLabel = false }: Curr
     variant === "chrome"
       ? "h-6 px-2 border border-white/25 text-white/85 hover:bg-white/10 hover:text-white"
       : "h-10 px-3 border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] text-[color:var(--color-text)] hover:border-[color:var(--color-primary)] hover:text-[color:var(--color-primary)]";
+
+  const handleSelect = (code: Currency) => {
+    setCurrency(code);
+    setOpen(false);
+  };
 
   return (
     <div className="relative inline-flex">
@@ -105,73 +118,69 @@ export function CurrencySwitcher({ variant = "chrome", showLabel = false }: Curr
         <ChevronDown size={11} className={`transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
-      {mounted &&
+      {mounted && open && pos &&
         createPortal(
-          <AnimatePresence>
-            {open && pos && (
-              <motion.ul
-                ref={menuRef}
-                role="listbox"
-                aria-label="Choose currency"
-                initial={{ opacity: 0, y: -4, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -4, scale: 0.98 }}
-                transition={{ duration: 0.14, ease: [0.16, 1, 0.3, 1] }}
-                style={{
-                  position: "fixed",
-                  top: pos.top,
-                  right: pos.right,
-                  zIndex: 9999,
-                }}
-                className="min-w-[220px] overflow-hidden rounded-xl border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] p-1 shadow-[0_16px_40px_-12px_rgba(6,10,20,0.35)]"
-              >
-                {CURRENCIES.map((c) => {
-                  const isActive = c.code === currency;
-                  return (
-                    <li key={c.code}>
-                      <button
-                        type="button"
-                        role="option"
-                        aria-selected={isActive}
-                        onClick={() => {
-                          setCurrency(c.code);
-                          setOpen(false);
-                        }}
-                        className={[
-                          "flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left text-[13px] font-medium transition-colors",
-                          isActive
-                            ? "bg-[color:var(--color-primary-tint)] text-[color:var(--color-primary)]"
-                            : "text-[color:var(--color-text)] hover:bg-[color:var(--color-bg-secondary)]",
-                        ].join(" ")}
-                      >
-                        <span className="inline-flex items-center gap-2">
-                          <span
-                            className={[
-                              "inline-flex h-7 w-7 items-center justify-center rounded-md font-mono text-[12px] font-bold",
-                              isActive
-                                ? "bg-[color:var(--color-primary)] text-white"
-                                : "bg-[color:var(--color-bg-secondary)] text-[color:var(--color-text)]",
-                            ].join(" ")}
-                          >
-                            {c.symbol}
+          <div
+            ref={menuRef}
+            role="listbox"
+            aria-label="Choose currency"
+            style={{
+              position: "fixed",
+              top: pos.top,
+              right: pos.right,
+              zIndex: 9999,
+              minWidth: 220,
+            }}
+            className="overflow-hidden rounded-xl border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] p-1 shadow-[0_16px_40px_-12px_rgba(6,10,20,0.35)]"
+          >
+            <ul className="flex flex-col">
+              {CURRENCIES.map((c) => {
+                const isActive = c.code === currency;
+                return (
+                  <li key={c.code}>
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={isActive}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleSelect(c.code);
+                      }}
+                      className={[
+                        "flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left text-[13px] font-medium transition-colors",
+                        isActive
+                          ? "bg-[color:var(--color-primary-tint)] text-[color:var(--color-primary)]"
+                          : "text-[color:var(--color-text)] hover:bg-[color:var(--color-bg-secondary)]",
+                      ].join(" ")}
+                    >
+                      <span className="inline-flex items-center gap-2">
+                        <span
+                          className={[
+                            "inline-flex h-7 w-7 items-center justify-center rounded-md font-mono text-[12px] font-bold",
+                            isActive
+                              ? "bg-[color:var(--color-primary)] text-white"
+                              : "bg-[color:var(--color-bg-secondary)] text-[color:var(--color-text)]",
+                          ].join(" ")}
+                        >
+                          {c.symbol}
+                        </span>
+                        <span className="flex flex-col leading-tight">
+                          <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em]">
+                            {c.code}
                           </span>
-                          <span className="flex flex-col leading-tight">
-                            <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em]">
-                              {c.code}
-                            </span>
-                            <span className="text-[11px] font-normal text-[color:var(--color-text-tertiary)]">
-                              {c.label}
-                            </span>
+                          <span className="text-[11px] font-normal text-[color:var(--color-text-tertiary)]">
+                            {c.label}
                           </span>
                         </span>
-                        {isActive && <Check size={14} strokeWidth={2.5} />}
-                      </button>
-                    </li>
-                  );
-                })}
-              </motion.ul>
-            )}
-          </AnimatePresence>,
+                      </span>
+                      {isActive && <Check size={14} strokeWidth={2.5} />}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>,
           document.body,
         )}
     </div>

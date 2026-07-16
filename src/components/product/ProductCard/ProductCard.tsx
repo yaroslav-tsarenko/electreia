@@ -71,7 +71,10 @@ export function ProductCard({
       className="group relative flex flex-col overflow-hidden rounded-xl border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[color:var(--color-primary)]/60 hover:shadow-[0_10px_28px_-8px_rgba(46,125,255,0.35)]"
     >
       {/* Image area — fixed uniform aspect */}
-      <div className="relative aspect-square overflow-hidden bg-[color:var(--color-bg-secondary)]">
+      <div
+        className="relative aspect-square overflow-hidden"
+        style={{ backgroundColor: "rgb(247, 247, 247)" }}
+      >
         {/* faint tech grid on card image bg */}
         <div aria-hidden className="absolute inset-0 tech-grid opacity-40" />
         <Image
@@ -94,7 +97,7 @@ export function ProductCard({
           </span>
         )}
         {outOfStock && (
-          <span className="absolute left-3 top-3 z-[2] inline-flex h-6 items-center rounded-md border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)]/85 px-2 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-text-secondary)] backdrop-blur">
+          <span className="absolute left-3 top-3 z-[2] inline-flex h-6 items-center rounded-md bg-[color:var(--color-danger)] px-2 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-white shadow-[0_2px_10px_rgba(245,56,93,0.35)]">
             {t("outOfStock")}
           </span>
         )}

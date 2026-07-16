@@ -59,13 +59,16 @@ export function MarketplaceProductCard({ product }: Props) {
       href={`/product/${product.slug}`}
       className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[color:var(--color-line-strong)] hover:shadow-[0_10px_28px_rgba(28,26,23,0.08)]"
     >
-      <div className="relative aspect-square overflow-hidden bg-[color:var(--color-bg)]">
+      <div
+        className="relative aspect-square overflow-hidden"
+        style={{ backgroundColor: "rgb(247, 247, 247)" }}
+      >
         <Image
           src={imgSrc}
           alt={product.images?.[0]?.alt || product.name}
           width={280}
           height={280}
-          className="h-full w-full object-contain p-5 mix-blend-multiply transition-transform duration-500 group-hover:scale-[1.04] dark:mix-blend-normal"
+          className="h-full w-full object-contain p-5 transition-transform duration-500 group-hover:scale-[1.04]"
           onError={(e) => {
             const img = e.target as HTMLImageElement;
             const fallback = getPicsumFallback(product.name);
@@ -78,7 +81,7 @@ export function MarketplaceProductCard({ product }: Props) {
           </span>
         )}
         {!inStock && (
-          <span className="absolute inset-x-3 top-3 rounded-md bg-[color:var(--color-text)]/85 py-1 text-center text-[10px] font-semibold uppercase tracking-wider text-white">
+          <span className="absolute inset-x-3 top-3 rounded-md bg-[color:var(--color-danger)] py-1 text-center text-[10px] font-semibold uppercase tracking-wider text-white shadow-[0_2px_10px_rgba(245,56,93,0.35)]">
             Out of stock
           </span>
         )}
