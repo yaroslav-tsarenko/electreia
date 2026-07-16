@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { ProductGallery } from "@/components/product/ProductGallery/ProductGallery";
 import { ProductInfo } from "@/components/product/ProductInfo/ProductInfo";
 import { ProductTabs } from "@/components/product/ProductTabs/ProductTabs";
+import { RelatedProducts } from "@/components/product/RelatedProducts/RelatedProducts";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs/Breadcrumbs";
 import { JsonLd } from "@/components/shared/SEO/JsonLd";
 
@@ -67,6 +68,52 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   };
 }
 
+const cardSelect = {
+  id: true,
+  name: true,
+  slug: true,
+  sku: true,
+  price: true,
+  comparePrice: true,
+  quantity: true,
+  status: true,
+  images: {
+    select: { url: true, alt: true },
+    orderBy: { sortOrder: "asc" as const },
+    take: 1,
+  },
+  categories: {
+    select: { category: { select: { name: true } } },
+    take: 1,
+  },
+} as const;
+
+async function getRelatedProducts(productId: string, categoryId: string | undefined) {
+  if (!categoryId) return [];
+  const rows = await prisma.product.findMany({
+    where: {
+      status: "ACTIVE",
+      id: { not: productId },
+      images: { some: {} },
+      categories: { some: { categoryId } },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 10,
+    select: cardSelect,
+  });
+  return rows.map((p) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    sku: p.sku,
+    price: Number(p.price),
+    comparePrice: p.comparePrice == null ? null : Number(p.comparePrice),
+    quantity: p.quantity,
+    images: p.images.map((i) => ({ url: i.url, alt: i.alt })),
+    categories: p.categories.map((pc) => ({ category: { name: pc.category.name } })),
+  }));
+}
+
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
 
@@ -123,6 +170,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const characteristics = product.characteristics as Record<string, Record<string, string>> | null;
 
+  const relatedProducts = await getRelatedProducts(product.id, primaryCategory?.id);
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -135,7 +184,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     offers: {
       "@type": "Offer",
       price: Number(product.price),
-      priceCurrency: "EUR",
+      priceCurrency: "GBP",
       availability: product.quantity > 0
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
@@ -161,12 +210,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
   ];
 
   return (
-    <div className="mx-auto w-full max-w-[var(--max-width)] px-4 pb-16">
+    <div className="mx-auto w-full max-w-[var(--max-width)] px-4 pb-20">
       <JsonLd data={jsonLd} />
 
       <Breadcrumbs items={breadcrumbItems} />
 
-      <div className="mt-2 grid grid-cols-1 items-start gap-6 md:grid-cols-2 md:gap-8 lg:gap-12">
+      {/* 1 · Hero block — gallery + info side by side */}
+      <section
+        aria-label="Product overview"
+        className="mt-2 grid grid-cols-1 items-start gap-6 md:grid-cols-2 md:gap-8 lg:gap-12"
+      >
         <div className="md:sticky md:top-[calc(var(--header-height)+1rem)]">
           <ProductGallery images={product.images} productName={product.name} />
         </div>
@@ -189,8 +242,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
           avgRating={avgRating}
           categoryPath={categoryChain}
         />
-      </div>
+      </section>
 
+      {/* 2 · Detail block — description / specs / reviews as sequential tabs */}
       <ProductTabs
         description={product.description}
         characteristics={characteristics}
@@ -198,6 +252,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
           ...r,
           createdAt: r.createdAt.toISOString(),
         }))}
+      />
+
+      {/* 3 · Related products — same-category recommendations */}
+      <RelatedProducts
+        products={relatedProducts}
+        categorySlug={primaryCategory?.slug}
+        categoryName={primaryCategory?.name}
       />
     </div>
   );
