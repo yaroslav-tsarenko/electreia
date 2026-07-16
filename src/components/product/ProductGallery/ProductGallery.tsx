@@ -17,7 +17,10 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
   if (images.length === 0) {
     return (
       <div className="flex flex-col gap-3">
-        <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] p-3 text-[color:var(--color-text-tertiary)] sm:aspect-[4/3] sm:p-5">
+        <div
+          className="relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-[color:var(--color-line)] p-3 text-[color:var(--color-text-tertiary)] sm:aspect-[4/3] sm:p-5"
+          style={{ backgroundColor: "rgb(247, 247, 247)" }}
+        >
           <div className="absolute inset-0 tech-grid opacity-30" />
           <div className="relative flex flex-col items-center gap-2">
             <ImageOff size={28} strokeWidth={1.4} />
@@ -35,7 +38,10 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
   return (
     <div className="flex flex-col gap-3">
       {/* Primary image */}
-      <div className="group relative aspect-square cursor-zoom-in overflow-hidden rounded-2xl border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] sm:aspect-[4/3]">
+      <div
+        className="group relative aspect-square cursor-zoom-in overflow-hidden rounded-2xl border border-[color:var(--color-line)] sm:aspect-[4/3]"
+        style={{ backgroundColor: "rgb(247, 247, 247)" }}
+      >
         <div className="pointer-events-none absolute inset-0 tech-grid opacity-30" />
 
         {/* Frame index badge */}
@@ -97,7 +103,8 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
                 whileTap={{ scale: 0.94 }}
                 onClick={() => setSelectedIndex(index)}
                 aria-label={`Show image ${index + 1}`}
-                className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 bg-[color:var(--color-bg-elevated)] p-1 transition-all sm:h-[76px] sm:w-[76px] ${
+                style={{ backgroundColor: "rgb(247, 247, 247)" }}
+                className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 p-1 transition-all sm:h-[76px] sm:w-[76px] ${
                   isActive
                     ? "border-[color:var(--color-primary)] shadow-[0_0_0_3px_var(--color-primary-tint)]"
                     : "border-[color:var(--color-line)] hover:-translate-y-px hover:border-[color:var(--color-primary)]/60"
