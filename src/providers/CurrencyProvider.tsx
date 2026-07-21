@@ -2,10 +2,10 @@
 
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from "react";
 
-export type Currency = "USD" | "GBP";
+export type Currency = "EUR" | "GBP";
 
 interface Rates {
-  USD: number;
+  EUR: number;
   GBP: number;
 }
 
@@ -23,11 +23,9 @@ interface CurrencyContextType {
 
 /**
  * Base currency is GBP (£). Rates express "1 GBP in target currency".
- * If the /api/exchange-rates endpoint returns rates keyed against EUR
- * (as it did previously), we normalise them relative to GBP.
  */
-const DEFAULT_RATES: Rates = { GBP: 1, USD: 1.27 };
-const SYMBOLS: Record<Currency, string> = { GBP: "£", USD: "$" };
+const DEFAULT_RATES: Rates = { GBP: 1, EUR: 1.17 };
+const SYMBOLS: Record<Currency, string> = { GBP: "£", EUR: "€" };
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
 
@@ -37,7 +35,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const stored = localStorage.getItem("currency") as Currency | null;
-    if (stored === "USD" || stored === "GBP") {
+    if (stored === "EUR" || stored === "GBP") {
       setCurrencyState(stored);
     }
   }, []);
@@ -47,10 +45,9 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
       .then((r) => r.json())
       .then((data) => {
         if (!data?.rates) return;
-        const usdPerEur = Number(data.rates.USD);
-        const gbpPerEur = Number(data.rates.GBP);
-        if (usdPerEur > 0 && gbpPerEur > 0) {
-          setRates({ GBP: 1, USD: usdPerEur / gbpPerEur });
+        const eurPerGbp = Number(data.rates.EUR);
+        if (eurPerGbp > 0) {
+          setRates({ GBP: 1, EUR: eurPerGbp });
         }
       })
       .catch(() => {});

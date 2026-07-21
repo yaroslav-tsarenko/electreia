@@ -40,7 +40,6 @@ export default function PaymentPolicyPage() {
       <ul>
         <li>EUR</li>
         <li>GBP</li>
-        <li>USD</li>
       </ul>
       <p>
         2.2 The currency available to you may depend on your location, selected store settings, payment
@@ -232,8 +231,7 @@ export default function PaymentPolicyPage() {
       </p>
       <ul>
         <li>&euro;100 for EUR orders;</li>
-        <li>&pound;100 for GBP orders;</li>
-        <li>$100 for USD orders.</li>
+        <li>&pound;100 for GBP orders.</li>
       </ul>
       <p>
         11.3 The free delivery threshold is calculated after discounts and before any customs duties, import

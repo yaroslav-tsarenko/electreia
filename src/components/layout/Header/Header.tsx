@@ -614,7 +614,7 @@ export function Header() {
             {/* Right cluster — Currency · Account · Compare · Wishlist · Cart */}
             <div className="hidden items-center gap-1 lg:flex">
               {/* Currency selector — prominent placement so shoppers can
-                  switch GBP ↔ USD from anywhere on the site */}
+                  switch GBP ↔ EUR from anywhere on the site */}
               <div className="mr-1">
                 <CurrencySwitcher variant="solid" showLabel />
               </div>

@@ -139,8 +139,7 @@ export default function ShippingPolicyPage() {
       </p>
       <ul>
         <li>&euro;100 for EUR orders;</li>
-        <li>&pound;100 for GBP orders;</li>
-        <li>$100 for USD orders.</li>
+        <li>&pound;100 for GBP orders.</li>
       </ul>
       <p>
         6.3 The free delivery threshold is calculated based on the product subtotal after discounts and

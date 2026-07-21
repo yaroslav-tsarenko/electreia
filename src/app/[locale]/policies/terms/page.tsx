@@ -207,7 +207,7 @@ export default function TermsPage() {
       </p>
 
       <h2>8. Prices, VAT, and Currencies</h2>
-      <p>8.1 The Website may display prices in EUR, GBP, and USD.</p>
+      <p>8.1 The Website may display prices in EUR and GBP.</p>
       <p>
         8.2 Prices displayed on the Website include VAT where applicable, unless clearly stated otherwise.
       </p>

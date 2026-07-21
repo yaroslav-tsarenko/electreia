@@ -7,7 +7,7 @@ import { useCurrency, type Currency } from "@/providers/CurrencyProvider";
 
 const CURRENCIES: { code: Currency; symbol: string; label: string }[] = [
   { code: "GBP", symbol: "£", label: "British Pound" },
-  { code: "USD", symbol: "$", label: "US Dollar" },
+  { code: "EUR", symbol: "€", label: "Euro" },
 ];
 
 type Variant = "chrome" | "solid";

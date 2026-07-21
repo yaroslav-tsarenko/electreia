@@ -113,7 +113,7 @@ export default function CookiePolicyPage() {
           <tr><td>Cart cookie or local storage</td><td>Remembers products added to your shopping cart</td><td>Session or limited persistent period</td></tr>
           <tr><td>Checkout session cookie</td><td>Supports secure checkout and order completion</td><td>Session</td></tr>
           <tr><td>Account session cookie</td><td>Keeps you logged in during your visit</td><td>Session or limited persistent period</td></tr>
-          <tr><td>Currency preference cookie</td><td>Remembers your selected display currency, such as EUR, GBP, or USD</td><td>Limited persistent period</td></tr>
+          <tr><td>Currency preference cookie</td><td>Remembers your selected display currency, such as EUR or GBP</td><td>Limited persistent period</td></tr>
           <tr><td>Cookie consent preference</td><td>Stores your cookie choices so we can respect them on future visits</td><td>Limited persistent period</td></tr>
           <tr><td>Security cookie</td><td>Helps protect the Website from fraud, abuse, bots, or unauthorised activity</td><td>Session or limited persistent period</td></tr>
         </tbody>
