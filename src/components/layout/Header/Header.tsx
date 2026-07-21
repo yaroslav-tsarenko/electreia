@@ -269,9 +269,14 @@ export function Header() {
   const searchRef = useRef<HTMLDivElement>(null);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // — Scroll condensing
+  // — Scroll condensing. Hysteresis: collapse past 80px, expand only below 8px.
+  // The gap exceeds the utility strip's height (36px) so the layout shift from
+  // collapsing can't push scrollY back across the threshold and cause flicker.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled((prev) => (prev ? y > 8 : y > 80));
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);

@@ -28,7 +28,7 @@ const emptyCart: Cart = {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-function calculateTotals(items: CartItem[], taxRate: number = 21): Cart {
+function calculateTotals(items: CartItem[], taxRate: number = 0): Cart {
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const taxAmount = subtotal * (taxRate / 100);
   const shippingCost = subtotal > 0 ? (subtotal >= 100 ? 0 : 5.99) : 0;

@@ -49,7 +49,7 @@
     "newsletterPlaceholder": "Enter your email",
     "promoFreeShipping": "Free UK shipping",
     "promoFreeShippingDesc": "On orders over £100",
-    "promoReturns": "30-day returns",
+    "promoReturns": "14-day returns",
     "promoReturnsDesc": "No fine print, no hassle",
     "promoSupport": "24/7 Support",
     "promoSupportDesc": "We're here to help",
@@ -100,7 +100,7 @@
     "shareProduct": "Share",
     "freeShipping": "Free UK shipping",
     "freeShippingDesc": "on orders over £100",
-    "easyReturns": "30-day returns",
+    "easyReturns": "14-day returns",
     "easyReturnsDesc": "no fine print, no hassle",
     "securePayment": "Secure checkout",
     "securePaymentDesc": "PCI-DSS · 256-bit SSL"

@@ -121,10 +121,12 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
             <span className="text-[color:var(--color-text-secondary)]">Shipping</span>
             <span className="text-[color:var(--color-text)]">{Number(order.shippingCost) === 0 ? "Free" : formatPrice(convert(Number(order.shippingCost)), currency)}</span>
           </div>
-          <div className="flex gap-4">
-            <span className="text-[color:var(--color-text-secondary)]">Tax</span>
-            <span className="text-[color:var(--color-text)]">{formatPrice(convert(Number(order.taxAmount)), currency)}</span>
-          </div>
+          {Number(order.taxAmount) > 0 && (
+            <div className="flex gap-4">
+              <span className="text-[color:var(--color-text-secondary)]">Tax</span>
+              <span className="text-[color:var(--color-text)]">{formatPrice(convert(Number(order.taxAmount)), currency)}</span>
+            </div>
+          )}
           {Number(order.discountAmount) > 0 && (
             <div className="flex gap-4 text-[color:var(--color-success)]">
               <span>Discount</span>

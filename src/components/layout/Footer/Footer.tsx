@@ -92,7 +92,7 @@ const legalLinks = [
 
 const trustBadges = [
   { icon: Truck,       label: "Free UK delivery over £100" },
-  { icon: RotateCcw,   label: "30-day returns" },
+  { icon: RotateCcw,   label: "14-day returns" },
   { icon: ShieldCheck, label: "2-year warranty" },
   { icon: Repeat,      label: "Trade-in credit" },
 ];

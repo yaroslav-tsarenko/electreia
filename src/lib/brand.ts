@@ -15,7 +15,7 @@ export const brand = {
 
   company: {
     legalName: "LORDCARE LIMITED",
-    number: "15982435",
+    number: "16020956",
     address: {
       line1: "Academy House",
       line2: "11 Dunraven Place",

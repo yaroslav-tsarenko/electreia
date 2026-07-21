@@ -275,10 +275,14 @@ function totalsBlock(data: OrderEmailData): string {
           <td style="color:${MUTED_COLOR};font-size:14px;padding:4px 0;">Shipping (${shippingLabelFor(data.shippingMethod)})</td>
           <td style="text-align:right;font-weight:500;font-size:14px;padding:4px 0;${shipping === 0 ? "color:#2E7D32;" : ""}">${shipping === 0 ? "Free" : formatEur(shipping)}</td>
         </tr>
-        <tr>
-          <td style="color:${MUTED_COLOR};font-size:14px;padding:4px 0;">Tax (21%)</td>
-          <td style="text-align:right;font-weight:500;font-size:14px;padding:4px 0;">${formatEur(toNum(data.taxAmount))}</td>
-        </tr>
+        ${
+          toNum(data.taxAmount) > 0
+            ? `<tr>
+                <td style="color:${MUTED_COLOR};font-size:14px;padding:4px 0;">Tax</td>
+                <td style="text-align:right;font-weight:500;font-size:14px;padding:4px 0;">${formatEur(toNum(data.taxAmount))}</td>
+              </tr>`
+            : ""
+        }
         ${
           discount > 0
             ? `<tr>

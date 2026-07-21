@@ -56,10 +56,9 @@ export async function POST(request: NextRequest) {
     const discountAmount = discount ? +(subtotal * (discount.percent / 100)).toFixed(2) : 0;
     const discountedSubtotal = subtotal - discountAmount;
 
-    const taxRate = 21;
-    const taxAmount = +(discountedSubtotal * (taxRate / 100)).toFixed(2);
+    const taxAmount = 0;
     const shippingCost = discountedSubtotal >= 100 ? 0 : 5.99;
-    const total = +(discountedSubtotal + taxAmount + shippingCost).toFixed(2);
+    const total = +(discountedSubtotal + shippingCost).toFixed(2);
 
     const order = await prisma.order.create({
       data: {

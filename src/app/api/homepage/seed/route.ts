@@ -24,7 +24,7 @@ export async function POST() {
     // ── Promo Strip Items ──────────────────────────────
     const promoStripItems = [
       { icon: "Truck", title: "Free UK Delivery", subtitle: "On orders over £100", sortOrder: 0 },
-      { icon: "RotateCcw", title: "30-Day Returns", subtitle: "No fine print", sortOrder: 1 },
+      { icon: "RotateCcw", title: "14-Day Returns", subtitle: "No fine print", sortOrder: 1 },
       { icon: "ShieldCheck", title: "2-Year Warranty", subtitle: "Manufacturer-backed", sortOrder: 2 },
       { icon: "Shield", title: "Secure Payment", subtitle: "PCI-DSS · 256-bit SSL", sortOrder: 3 },
       { icon: "Zap", title: "Same-Day Dispatch", subtitle: "Order before 14:00 GMT", sortOrder: 4 },
@@ -194,7 +194,7 @@ export async function POST() {
       type: "PROMO_WIDE" as const,
       title: "Free UK shipping over £100",
       subtitle: "Same-day dispatch on orders before 14:00",
-      description: "Precision-engineered electronics shipped from the United Kingdom. 30-day returns, 2-year warranty, no fine print.",
+      description: "Precision-engineered electronics shipped from the United Kingdom. 14-day returns, 2-year warranty, no fine print.",
       linkUrl: "/catalog",
       ctaLabel: "Shop the catalog",
       bgColor: "#0B0E14",

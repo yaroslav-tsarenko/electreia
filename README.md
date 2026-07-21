@@ -2,7 +2,7 @@
 
 Precision-engineered electronics e-commerce store.
 
-Built by **LORDCARE LIMITED** (Company No. 15982435), Academy House,
+Built by **LORDCARE LIMITED** (Company No. 16020956), Academy House,
 11 Dunraven Place, Bridgend, Mid Glamorgan, United Kingdom, CF31 1JF.
 
 Contact: `info@electreia.co.uk` · `+44 7463 590620`.

@@ -158,11 +158,6 @@ export default function CartPage() {
                   {cart.shippingCost > 0 ? formatPrice(convert(cart.shippingCost), currency) : "Free"}
                 </span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-[color:var(--color-text-secondary)]">{t("tax")} (21%)</span>
-                <span className="font-medium text-[color:var(--color-text)]">{formatPrice(convert(cart.taxAmount), currency)}</span>
-              </div>
-
               {subtotalConverted < freeShippingThreshold && (
                 <div className="flex items-center gap-1.5 rounded-lg bg-[color:var(--color-bg-secondary)] px-3 py-2.5 text-xs text-[color:var(--color-text-secondary)]">
                   <Truck size={14} />

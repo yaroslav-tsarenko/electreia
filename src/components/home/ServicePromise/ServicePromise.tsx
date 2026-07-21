@@ -6,7 +6,7 @@ import { CheckCircle2, Sparkles, ShieldCheck, Truck } from "lucide-react";
 
 const bullets = [
   "Same-day dispatch on orders placed before 14:00 GMT",
-  "Free UK returns within 30 days, no questions asked",
+  "Free UK returns within 14 days, no questions asked",
   "Manufacturer-certified inventory with batch traceability",
   "Bulk pricing tiers automatically applied at checkout",
 ];
