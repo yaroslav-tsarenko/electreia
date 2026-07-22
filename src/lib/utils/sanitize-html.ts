@@ -51,6 +51,31 @@ const DANGEROUS_VOID = /<(script|style|iframe|embed|object|input|button|select|t
 // HTML comments
 const COMMENTS = /<!--[\s\S]*?-->/g;
 
+// Cyrillic range — this is an English-only store, so any Russian/Ukrainian
+// leftovers from the vendor feed (e.g. "Вес в упаковке: 1.13") must be dropped.
+const CYRILLIC_RE = /[Ѐ-ӿ]/;
+
+// Remove any line/block whose text contains Cyrillic. Runs on the raw feed HTML
+// before allow-list sanitization so we can still see the original structure.
+function stripCyrillicSegments(html: string): string {
+  if (!CYRILLIC_RE.test(html)) return html;
+
+  // Drop whole block elements (list items, paragraphs, table rows, headings)
+  // that contain any Cyrillic text.
+  html = html.replace(
+    /<(li|p|tr|h[1-6])\b[^>]*>[\s\S]*?<\/\1\s*>/gi,
+    (m) => (CYRILLIC_RE.test(m) ? "" : m),
+  );
+
+  // Drop <br>-separated lines that contain Cyrillic.
+  html = html
+    .split(/<br\s*\/?>/i)
+    .filter((seg) => !CYRILLIC_RE.test(seg))
+    .join("<br>");
+
+  return html;
+}
+
 const EVENT_HANDLER_ATTR = /\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi;
 const STYLE_ATTR = /\sstyle\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi;
 const CLASS_ATTR = /\sclass\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi;
@@ -73,7 +98,7 @@ function safeHref(raw: string | null): string | null {
 export function sanitizeProductDescription(html: string): string {
   if (!html) return "";
 
-  let s = html
+  let s = stripCyrillicSegments(html)
     .replace(DANGEROUS_BLOCKS, "")
     .replace(DANGEROUS_VOID, "")
     .replace(COMMENTS, "");

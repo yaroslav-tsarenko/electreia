@@ -215,15 +215,16 @@ export async function POST() {
       "Acer", "MSI", "Logitech", "Microsoft", "Intel", "AMD",
     ];
 
+    // Logos are rendered from Simple Icons by brand name in BrandStrip, so no
+    // logoUrl asset is needed here.
     for (let i = 0; i < brands.length; i++) {
-      const slug = brands[i].toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
       await prisma.brand.upsert({
         where: { id: `seed-brand-${i}` },
-        update: { name: brands[i], logoUrl: `/brands/${slug}.svg`, linkUrl: `/catalog`, sortOrder: i },
+        update: { name: brands[i], logoUrl: null, linkUrl: `/catalog`, sortOrder: i },
         create: {
           id: `seed-brand-${i}`,
           name: brands[i],
-          logoUrl: `/brands/${slug}.svg`,
+          logoUrl: null,
           linkUrl: `/catalog`,
           sortOrder: i,
         },
