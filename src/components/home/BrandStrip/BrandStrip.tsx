@@ -29,15 +29,17 @@ interface BrandData {
 // Real brand logos (Simple Icons) keyed by normalized brand name, with each
 // brand's official color. Microsoft is omitted from Simple Icons for trademark
 // reasons, so it falls back to a styled wordmark.
-const BRAND_ICONS: Record<string, { Icon: IconType; color: string }> = {
-  apple: { Icon: SiApple, color: "#000000" },
+// `adaptive` marks near-black wordmarks that would vanish on the dark theme —
+// their color is overridden to the theme text color via CSS (see variables.css).
+const BRAND_ICONS: Record<string, { Icon: IconType; color: string; adaptive?: boolean }> = {
+  apple: { Icon: SiApple, color: "#000000", adaptive: true },
   samsung: { Icon: SiSamsung, color: "#1428A0" },
   lg: { Icon: SiLg, color: "#A50034" },
-  sony: { Icon: SiSony, color: "#000000" },
+  sony: { Icon: SiSony, color: "#000000", adaptive: true },
   hp: { Icon: SiHp, color: "#0096D6" },
   dell: { Icon: SiDell, color: "#007DB8" },
   lenovo: { Icon: SiLenovo, color: "#E2231A" },
-  asus: { Icon: SiAsus, color: "#000000" },
+  asus: { Icon: SiAsus, color: "#000000", adaptive: true },
   acer: { Icon: SiAcer, color: "#83B81A" },
   msi: { Icon: SiMsi, color: "#EA1B22" },
   logitech: { Icon: SiLogitech, color: "#00B8FC" },
@@ -115,7 +117,9 @@ export function BrandStrip({ brands }: Props) {
                   role="img"
                   size={40}
                   color={icon.color}
-                  className="max-h-10 w-auto opacity-80 transition-opacity group-hover:opacity-100"
+                  className={`max-h-10 w-auto opacity-80 transition-opacity group-hover:opacity-100${
+                    icon.adaptive ? " brand-logo-adaptive" : ""
+                  }`}
                 />
               ) : externalLogo ? (
                 /* eslint-disable-next-line @next/next/no-img-element */

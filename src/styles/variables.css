@@ -247,3 +247,10 @@
 .dark img[src*=".webp"] {
   filter: brightness(0.96) contrast(1.02);
 }
+
+/* ── Near-black brand logos (Apple, Sony, ASUS) would disappear on the dark
+   canvas — override their inline color to the theme's text color. */
+[data-theme="dark"] .brand-logo-adaptive,
+.dark .brand-logo-adaptive {
+  color: var(--color-text) !important;
+}
