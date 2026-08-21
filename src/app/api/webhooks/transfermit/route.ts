@@ -39,9 +39,9 @@ export async function POST(request: NextRequest) {
     // Determine correct webhook secret key based on the order's paymentMethod
     let rawWebhookSecret = process.env.TRANSFERMIT_WEBHOOK_SECRET;
     if (order.paymentMethod === "applepay_visa") {
-      rawWebhookSecret = process.env.TRANSFERMIT_VISA_WEBHOOK_SECRET || "r4z0rMfW7j5z";
+      rawWebhookSecret = process.env.TRANSFERMIT_VISA_WEBHOOK_SECRET || process.env.TRANSFERMIT_WEBHOOK_SECRET;
     } else if (order.paymentMethod === "applepay_mastercard") {
-      rawWebhookSecret = process.env.TRANSFERMIT_MASTERCARD_WEBHOOK_SECRET || "uFZ8vd3F0qJz";
+      rawWebhookSecret = process.env.TRANSFERMIT_MASTERCARD_WEBHOOK_SECRET || process.env.TRANSFERMIT_WEBHOOK_SECRET;
     }
 
     const webhookSecret = rawWebhookSecret ? rawWebhookSecret.replace(/^["']|["']$/g, "") : undefined;

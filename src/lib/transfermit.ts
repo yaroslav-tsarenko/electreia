@@ -59,9 +59,9 @@ export async function createTransfermitPayment(
   let rawApiKey = process.env.TRANSFERMIT_API_KEY;
 
   if (methodType === "applepay_visa") {
-    rawApiKey = process.env.TRANSFERMIT_VISA_API_KEY || "FG2WMPPaPAfas1WrhqsAxTglF6zpy99M";
+    rawApiKey = process.env.TRANSFERMIT_VISA_API_KEY || process.env.TRANSFERMIT_API_KEY;
   } else if (methodType === "applepay_mastercard") {
-    rawApiKey = process.env.TRANSFERMIT_MASTERCARD_API_KEY || "K8GG5AXNzuEtNJAhWdMNFFKQHaDevdQJ";
+    rawApiKey = process.env.TRANSFERMIT_MASTERCARD_API_KEY || process.env.TRANSFERMIT_API_KEY;
   }
 
   if (!rawApiKey) {
@@ -97,9 +97,9 @@ export async function createTransfermitRefund(data: TransfermitRefundData, metho
   let rawApiKey = process.env.TRANSFERMIT_API_KEY;
 
   if (methodType === "applepay_visa") {
-    rawApiKey = process.env.TRANSFERMIT_VISA_API_KEY || "FG2WMPPaPAfas1WrhqsAxTglF6zpy99M";
+    rawApiKey = process.env.TRANSFERMIT_VISA_API_KEY || process.env.TRANSFERMIT_API_KEY;
   } else if (methodType === "applepay_mastercard") {
-    rawApiKey = process.env.TRANSFERMIT_MASTERCARD_API_KEY || "K8GG5AXNzuEtNJAhWdMNFFKQHaDevdQJ";
+    rawApiKey = process.env.TRANSFERMIT_MASTERCARD_API_KEY || process.env.TRANSFERMIT_API_KEY;
   }
 
   if (!rawApiKey) {
