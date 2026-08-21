@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const validated = checkoutSchema.parse(body);
-    const { items, locale = "en" } = body;
+    const { items, locale = "en", paymentMethod = "transfermit" } = body;
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
         discountCode: discount?.code ?? null,
         discountPercent: discount?.percent ?? null,
         total,
-        paymentMethod: "transfermit",
+        paymentMethod: paymentMethod,
         items: { create: orderItems },
       },
       include: { items: true },
@@ -99,12 +99,14 @@ export async function POST(request: NextRequest) {
     const proto = request.headers.get("x-forwarded-proto") || "http";
     const siteUrl = host ? `${proto}://${host}` : (process.env.NEXT_PUBLIC_SITE_URL || "https://electreia.co.uk");
 
+    const transfermitMethod = paymentMethod === "transfermit" ? ("BASIC_CARD" as const) : ("APPLEPAYTOKEN" as const);
+
     // Call Transfermit API to create payment
     let paymentResponse;
     try {
       paymentResponse = await createTransfermitPayment({
         paymentType: "DEPOSIT",
-        paymentMethod: "BASIC_CARD",
+        paymentMethod: transfermitMethod,
         amount: total,
         currency: "EUR",
         description: `Order ${order.orderNumber} payment`,
@@ -127,7 +129,7 @@ export async function POST(request: NextRequest) {
         },
         returnUrl: `${siteUrl}/${locale}/order/confirmed?orderId=${order.id}`,
         webhookUrl: `${siteUrl}/api/webhooks/transfermit`,
-      });
+      }, paymentMethod);
     } catch (paymentError) {
       console.error("Transfermit payment creation failed, rolling back order:", paymentError);
       
