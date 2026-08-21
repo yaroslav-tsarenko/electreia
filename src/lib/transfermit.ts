@@ -41,7 +41,7 @@ function getApiUrl(methodType: string): string {
   }
   
   if (methodType === "applepay_visa" || methodType === "applepay_mastercard") {
-    const isTest = process.env.NODE_ENV === "development" || process.env.TRANSFERMIT_TEST_MODE === "true";
+    const isTest = process.env.TRANSFERMIT_TEST_MODE === "true";
     const baseUrl = isTest ? "https://app-demo.transfermit.com" : "https://app.transfermit.com";
     return `${baseUrl}/api/v1/payments`;
   }
