@@ -523,7 +523,7 @@ export default function CheckoutPage() {
                   </h3>
                   <div className="flex flex-col gap-2.5">
                     {[
-                      { key: "transfermit", label: "Credit Card (Transfermit)", desc: "Pay securely via credit card" },
+                      { key: "transfermit", label: "Credit Card", desc: "Pay securely via credit card" },
                       { key: "applepay_visa", label: "Apple Pay - Visa", desc: "Pay securely via Visa with Apple Pay" },
                       { key: "applepay_mastercard", label: "Apple Pay - Mastercard", desc: "Pay securely via Mastercard with Apple Pay" },
                     ].map((m) => {
