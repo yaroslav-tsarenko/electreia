@@ -10,18 +10,6 @@ export async function POST(request: NextRequest) {
     const rawBody = await request.text();
     const signature = request.headers.get("signature") || request.headers.get("x-signature") || "";
 
-    const rawWebhookSecret = process.env.TRANSFERMIT_WEBHOOK_SECRET;
-    const webhookSecret = rawWebhookSecret ? rawWebhookSecret.replace(/^["']|["']$/g, "") : undefined;
-
-    // Verify signature if webhook secret is configured and is not the default test key
-    if (webhookSecret && webhookSecret !== "test_webhook_secret") {
-      const isValid = verifyTransfermitSignature(rawBody, signature);
-      if (!isValid) {
-        console.error("[TRANSFERMIT WEBHOOK] Invalid signature received");
-        return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
-      }
-    }
-
     const payload = JSON.parse(rawBody);
     const { id: paymentId, paymentType, state, referenceId } = payload;
 
@@ -46,6 +34,25 @@ export async function POST(request: NextRequest) {
     if (!order) {
       console.warn(`[TRANSFERMIT WEBHOOK] Order not found for referenceId=${referenceId} or paymentId=${paymentId}`);
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    // Determine correct webhook secret key based on the order's paymentMethod
+    let rawWebhookSecret = process.env.TRANSFERMIT_WEBHOOK_SECRET;
+    if (order.paymentMethod === "applepay_visa") {
+      rawWebhookSecret = process.env.TRANSFERMIT_VISA_WEBHOOK_SECRET || process.env.TRANSFERMIT_WEBHOOK_SECRET;
+    } else if (order.paymentMethod === "applepay_mastercard") {
+      rawWebhookSecret = process.env.TRANSFERMIT_MASTERCARD_WEBHOOK_SECRET || process.env.TRANSFERMIT_WEBHOOK_SECRET;
+    }
+
+    const webhookSecret = rawWebhookSecret ? rawWebhookSecret.replace(/^["']|["']$/g, "") : undefined;
+
+    // Verify signature if secret is configured and not default mock key
+    if (webhookSecret && webhookSecret !== "test_webhook_secret") {
+      const isValid = verifyTransfermitSignature(rawBody, signature, webhookSecret);
+      if (!isValid) {
+        console.error("[TRANSFERMIT WEBHOOK] Invalid signature received");
+        return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+      }
     }
 
     // Handle Refund Webhook

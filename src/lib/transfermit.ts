@@ -2,7 +2,7 @@ import crypto from "crypto";
 
 export interface TransfermitPaymentData {
   paymentType: "DEPOSIT";
-  paymentMethod: "BASIC_CARD";
+  paymentMethod: "BASIC_CARD" | "APPLEPAYTOKEN";
   amount: number;
   currency: string;
   description: string;
@@ -34,19 +34,43 @@ export interface TransfermitRefundData {
   currency: string;
 }
 
-const API_URL = "https://app.transfermit.com/api/v1/payments";
+function getApiUrl(methodType: string): string {
+  const envUrl = process.env.TRANSFERMIT_API_URL;
+  if (envUrl) {
+    return `${envUrl.replace(/\/$/, "")}/api/v1/payments`;
+  }
+  
+  if (methodType === "applepay_visa" || methodType === "applepay_mastercard") {
+    const isTest = process.env.TRANSFERMIT_TEST_MODE === "true";
+    const baseUrl = isTest ? "https://app-demo.transfermit.com" : "https://app.transfermit.com";
+    return `${baseUrl}/api/v1/payments`;
+  }
+  
+  return "https://app.transfermit.com/api/v1/payments";
+}
 
 /**
  * Creates a payment with Transfermit
  */
-export async function createTransfermitPayment(data: TransfermitPaymentData) {
-  const rawApiKey = process.env.TRANSFERMIT_API_KEY;
+export async function createTransfermitPayment(
+  data: Omit<TransfermitPaymentData, "paymentMethod"> & { paymentMethod: "BASIC_CARD" | "APPLEPAYTOKEN" },
+  methodType: string
+) {
+  let rawApiKey = process.env.TRANSFERMIT_API_KEY;
+
+  if (methodType === "applepay_visa") {
+    rawApiKey = process.env.TRANSFERMIT_VISA_API_KEY || process.env.TRANSFERMIT_API_KEY;
+  } else if (methodType === "applepay_mastercard") {
+    rawApiKey = process.env.TRANSFERMIT_MASTERCARD_API_KEY || process.env.TRANSFERMIT_API_KEY;
+  }
+
   if (!rawApiKey) {
-    throw new Error("TRANSFERMIT_API_KEY is not configured in .env");
+    throw new Error(`TRANSFERMIT_API_KEY is not configured in .env for ${methodType}`);
   }
   const apiKey = rawApiKey.replace(/^["']|["']$/g, "");
+  const apiUrl = getApiUrl(methodType);
 
-  const response = await fetch(API_URL, {
+  const response = await fetch(apiUrl, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${apiKey}`,
@@ -69,14 +93,22 @@ export async function createTransfermitPayment(data: TransfermitPaymentData) {
 /**
  * Creates a refund with Transfermit
  */
-export async function createTransfermitRefund(data: TransfermitRefundData) {
-  const rawApiKey = process.env.TRANSFERMIT_API_KEY;
+export async function createTransfermitRefund(data: TransfermitRefundData, methodType: string) {
+  let rawApiKey = process.env.TRANSFERMIT_API_KEY;
+
+  if (methodType === "applepay_visa") {
+    rawApiKey = process.env.TRANSFERMIT_VISA_API_KEY || process.env.TRANSFERMIT_API_KEY;
+  } else if (methodType === "applepay_mastercard") {
+    rawApiKey = process.env.TRANSFERMIT_MASTERCARD_API_KEY || process.env.TRANSFERMIT_API_KEY;
+  }
+
   if (!rawApiKey) {
-    throw new Error("TRANSFERMIT_API_KEY is not configured in .env");
+    throw new Error(`TRANSFERMIT_API_KEY is not configured in .env for ${methodType}`);
   }
   const apiKey = rawApiKey.replace(/^["']|["']$/g, "");
+  const apiUrl = getApiUrl(methodType);
 
-  const response = await fetch(API_URL, {
+  const response = await fetch(apiUrl, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${apiKey}`,
@@ -99,19 +131,13 @@ export async function createTransfermitRefund(data: TransfermitRefundData) {
 /**
  * Verifies webhook signature sent by Transfermit
  */
-export function verifyTransfermitSignature(rawBody: string, signature: string): boolean {
-  const rawWebhookSecret = process.env.TRANSFERMIT_WEBHOOK_SECRET;
-  if (!rawWebhookSecret) {
-    throw new Error("TRANSFERMIT_WEBHOOK_SECRET is not configured in .env");
-  }
-  const webhookSecret = rawWebhookSecret.replace(/^["']|["']$/g, "");
-
+export function verifyTransfermitSignature(rawBody: string, signature: string, secretKey: string): boolean {
   if (!signature) {
     return false;
   }
 
   const expectedSignature = crypto
-    .createHmac("sha256", webhookSecret)
+    .createHmac("sha256", secretKey)
     .update(rawBody)
     .digest("hex");
 

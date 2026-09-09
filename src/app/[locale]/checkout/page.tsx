@@ -76,6 +76,7 @@ export default function CheckoutPage() {
   const [promoInput, setPromoInput] = useState("");
   const [promoError, setPromoError] = useState<string | null>(null);
   const [applyingPromo, setApplyingPromo] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"transfermit" | "applepay_visa" | "applepay_mastercard">("transfermit");
 
   const {
     register,
@@ -176,6 +177,7 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           ...data,
           locale,
+          paymentMethod,
           discountCode: discount?.source === "code" ? discount.code : undefined,
           items: cart.items.map((item) => ({
             productId: item.productId,
@@ -511,6 +513,52 @@ export default function CheckoutPage() {
                       </span>
                     </motion.div>
                   ))}
+                </div>
+
+                {/* Payment Method Selector */}
+                <div className="mt-4 border-t border-[color:var(--color-line)] pt-4">
+                  <h3 className="mb-3 text-[13px] font-semibold text-[color:var(--color-text-secondary)]">
+                    Payment Method
+                  </h3>
+                  <div className="flex flex-col gap-2.5">
+                    {[
+                      { key: "transfermit", label: "Credit Card (Transfermit)", desc: "Pay securely via credit card" },
+                      { key: "applepay_visa", label: "Apple Pay - Visa", desc: "Pay securely via Visa with Apple Pay" },
+                      { key: "applepay_mastercard", label: "Apple Pay - Mastercard", desc: "Pay securely via Mastercard with Apple Pay" },
+                    ].map((m) => {
+                      const isSelected = paymentMethod === m.key;
+                      return (
+                        <label
+                          key={m.key}
+                          className={`flex cursor-pointer items-center gap-4 rounded-xl border p-4 transition-all ${
+                            isSelected
+                              ? "border-[color:var(--color-primary)] bg-[color:var(--color-primary-tint)]"
+                              : "border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)] hover:border-[color:var(--color-line-strong)]"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="payment_method_choice"
+                            value={m.key}
+                            checked={isSelected}
+                            onChange={() => setPaymentMethod(m.key as any)}
+                            className="hidden"
+                          />
+                          <div
+                            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
+                              isSelected ? "border-[color:var(--color-primary)]" : "border-[color:var(--color-line-strong)]"
+                            }`}
+                          >
+                            {isSelected && <div className="h-2 w-2 rounded-full bg-[color:var(--color-primary)]" />}
+                          </div>
+                          <div>
+                            <div className="text-sm font-semibold text-[color:var(--color-text)]">{m.label}</div>
+                            <div className="text-xs text-[color:var(--color-text-tertiary)]">{m.desc}</div>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 <div className="mt-1 flex gap-3">

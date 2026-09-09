@@ -33,11 +33,16 @@ export async function PATCH(
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    // If order status is set to REFUNDED and was paid via transfermit, trigger Transfermit Refund API
+    const isTransfermitMethod =
+      previous.paymentMethod === "transfermit" ||
+      previous.paymentMethod === "applepay_visa" ||
+      previous.paymentMethod === "applepay_mastercard";
+
+    // If order status is set to REFUNDED and was paid via a Transfermit method, trigger Transfermit Refund API
     if (
       validated.status === "REFUNDED" &&
       previous.status !== "REFUNDED" &&
-      previous.paymentMethod === "transfermit" &&
+      isTransfermitMethod &&
       previous.paymentId
     ) {
       try {
@@ -46,7 +51,7 @@ export async function PATCH(
           parentPaymentId: previous.paymentId,
           amount: Number(previous.total),
           currency: "EUR",
-        });
+        }, previous.paymentMethod!);
       } catch (refundError) {
         console.error("[TRANSFERMIT REFUND] Failed to process automatic refund:", refundError);
         return NextResponse.json(
