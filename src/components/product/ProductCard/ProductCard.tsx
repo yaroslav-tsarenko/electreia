@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { ShoppingBag, Heart, Star, Eye } from "lucide-react";
 import { PriceDisplay } from "@/components/shared/PriceDisplay/PriceDisplay";
 import { useCart } from "@/providers/CartProvider";
-import { getProductImage, getPicsumFallback } from "@/lib/utils/product-image";
+import { getProductImage, PRODUCT_PLACEHOLDER } from "@/lib/utils/product-image";
 
 interface ProductCardProps {
   id: string;
@@ -42,7 +42,7 @@ export function ProductCard({
     ? Math.round(((comparePrice! - price) / comparePrice!) * 100)
     : 0;
   const outOfStock = quantity <= 0;
-  const resolvedImage = getProductImage(imageUrl, name);
+  const resolvedImage = getProductImage(imageUrl);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -85,8 +85,7 @@ export function ProductCard({
           className="relative z-[1] object-contain p-6 transition-transform duration-500 ease-out group-hover:scale-[1.05]"
           onError={(e) => {
             const img = e.currentTarget as HTMLImageElement;
-            const fallback = getPicsumFallback(name);
-            if (img.src !== fallback) img.src = fallback;
+            if (!img.src.endsWith(PRODUCT_PLACEHOLDER)) img.src = PRODUCT_PLACEHOLDER;
           }}
         />
 

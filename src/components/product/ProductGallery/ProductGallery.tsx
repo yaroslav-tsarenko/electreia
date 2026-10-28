@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ImageOff, Maximize2 } from "lucide-react";
-import { getProductImage, getPicsumFallback } from "@/lib/utils/product-image";
+import { getProductImage, PRODUCT_PLACEHOLDER } from "@/lib/utils/product-image";
 
 interface ProductGalleryProps {
   images: { id: string; url: string; alt?: string | null }[];
@@ -70,7 +70,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
             className="relative h-full w-full"
           >
             <Image
-              src={getProductImage(active.url, productName)}
+              src={getProductImage(active.url)}
               alt={active.alt || productName}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
@@ -78,8 +78,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
               priority
               onError={(e) => {
                 const img = e.currentTarget as HTMLImageElement;
-                const fallback = getPicsumFallback(productName);
-                if (img.src !== fallback) img.src = fallback;
+                if (!img.src.endsWith(PRODUCT_PLACEHOLDER)) img.src = PRODUCT_PLACEHOLDER;
               }}
             />
           </motion.div>
@@ -112,15 +111,14 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
               >
                 <div className="pointer-events-none absolute inset-0 tech-grid opacity-25" />
                 <Image
-                  src={getProductImage(image.url, productName)}
+                  src={getProductImage(image.url)}
                   alt={image.alt || `${productName} ${index + 1}`}
                   fill
                   sizes="76px"
                   className="relative object-contain"
                   onError={(e) => {
                     const img = e.currentTarget as HTMLImageElement;
-                    const fallback = getPicsumFallback(`${productName}-${index}`);
-                    if (img.src !== fallback) img.src = fallback;
+                    if (!img.src.endsWith(PRODUCT_PLACEHOLDER)) img.src = PRODUCT_PLACEHOLDER;
                   }}
                 />
                 {isActive && (

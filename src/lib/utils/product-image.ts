@@ -1,33 +1,21 @@
-const PLACEHOLDER_BASE = "https://placehold.co";
+/**
+ * Neutral placeholder for products without a working photo. Never a random
+ * stock photo — a picture of something else misrepresents the product.
+ */
+export const PRODUCT_PLACEHOLDER = "/product-placeholder.svg";
 
 /**
- * Hosts we know are dead (the old WordPress site was decommissioned) — any
- * URL pointing at them is swapped to a deterministic picsum placeholder so we
- * never render a broken image on the storefront.
+ * Hosts we know are dead (the old WordPress site was decommissioned and its
+ * uploads never reached the images.electreia.co.uk CDN) — any URL pointing at
+ * them is swapped to the placeholder so we never render a broken image.
  */
 const DEAD_HOSTS = [
   "electreia.co.uk",
   "www.electreia.co.uk",
+  "images.electreia.co.uk",
   "ravora.co.uk",
   "www.ravora.co.uk",
 ];
-
-function hashString(input: string): number {
-  let hash = 0;
-  for (let i = 0; i < input.length; i++) {
-    hash = (hash * 31 + input.charCodeAt(i)) | 0;
-  }
-  return Math.abs(hash);
-}
-
-/**
- * Deterministic photo fallback for a given seed — picsum returns a real image
- * that matches the product's visual weight far better than a grey rectangle.
- */
-export function getPicsumFallback(seed: string, size = 400): string {
-  const id = (hashString(seed) % 1000) + 1;
-  return `https://picsum.photos/seed/electreia-${id}/${size}/${size}`;
-}
 
 function isDeadHost(url: string): boolean {
   try {
@@ -38,22 +26,10 @@ function isDeadHost(url: string): boolean {
   }
 }
 
-export function getProductImage(
-  imageUrl: string | null | undefined,
-  productName?: string,
-  size = 400
-): string {
-  if (imageUrl && (imageUrl.startsWith("http") || imageUrl.startsWith("/"))) {
-    if (isDeadHost(imageUrl)) {
-      return getPicsumFallback(productName || imageUrl, size);
-    }
+export function getProductImage(imageUrl: string | null | undefined): string {
+  if (imageUrl && (imageUrl.startsWith("http") || imageUrl.startsWith("/")) && !isDeadHost(imageUrl)) {
     return imageUrl;
   }
-
-  return getPicsumFallback(productName || "product", size);
-}
-
-export function getProductImageFallback(size = "400x400"): string {
-  return `${PLACEHOLDER_BASE}/${size}/E0E0E0/999999?text=No+Image`;
+  return PRODUCT_PLACEHOLDER;
 }
 

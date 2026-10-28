@@ -7,7 +7,7 @@ import { QuantitySelector } from "@/components/shared/QuantitySelector/QuantityS
 import { PriceDisplay } from "@/components/shared/PriceDisplay/PriceDisplay";
 import { useCart } from "@/providers/CartProvider";
 import type { CartItem as CartItemType } from "@/types/cart";
-import { getProductImage, getPicsumFallback } from "@/lib/utils/product-image";
+import { getProductImage, PRODUCT_PLACEHOLDER } from "@/lib/utils/product-image";
 
 interface CartItemProps {
   item: CartItemType;
@@ -20,15 +20,14 @@ export function CartItem({ item }: CartItemProps) {
     <div className="flex gap-4 border-b border-[color:var(--color-line)] py-5 first:pt-0">
       <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg border border-[color:var(--color-line)] bg-white">
         <Image
-          src={getProductImage(item.imageUrl, item.name)}
+          src={getProductImage(item.imageUrl)}
           alt={item.name}
           fill
           sizes="96px"
           className="object-contain p-1"
           onError={(e) => {
             const img = e.currentTarget as HTMLImageElement;
-            const fallback = getPicsumFallback(item.name);
-            if (img.src !== fallback) img.src = fallback;
+            if (!img.src.endsWith(PRODUCT_PLACEHOLDER)) img.src = PRODUCT_PLACEHOLDER;
           }}
         />
       </div>

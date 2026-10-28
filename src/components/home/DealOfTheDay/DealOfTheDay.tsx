@@ -6,7 +6,7 @@ import { Link } from "@/i18n/routing";
 import { ArrowRight } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import { formatPrice } from "@/lib/utils/format-price";
-import { getProductImage, getProductImageFallback } from "@/lib/utils/product-image";
+import { getProductImage, PRODUCT_PLACEHOLDER } from "@/lib/utils/product-image";
 import { getDiscountPercent, type HomepageProduct } from "@/lib/homepage-products";
 import { useCurrency } from "@/providers/CurrencyProvider";
 
@@ -42,7 +42,7 @@ export function DealOfTheDay({ product }: Props) {
   }, []);
 
   const discount = getDiscountPercent(product);
-  const imgUrl = getProductImage(product.images?.[0]?.url, product.name);
+  const imgUrl = getProductImage(product.images?.[0]?.url);
   const pad = (n: number) => String(n).padStart(2, "0");
 
   return (
@@ -127,7 +127,7 @@ export function DealOfTheDay({ product }: Props) {
             height={200}
             className="h-full w-full object-contain"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = getProductImageFallback("240x200");
+              (e.target as HTMLImageElement).src = PRODUCT_PLACEHOLDER;
             }}
           />
         </motion.div>

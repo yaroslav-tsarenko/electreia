@@ -6,7 +6,7 @@ import { Heart, ShoppingBag, Star, Eye } from "lucide-react";
 import { useCart } from "@/providers/CartProvider";
 import { useCurrency } from "@/providers/CurrencyProvider";
 import { formatPrice } from "@/lib/utils/format-price";
-import { getProductImage, getPicsumFallback } from "@/lib/utils/product-image";
+import { getProductImage, PRODUCT_PLACEHOLDER } from "@/lib/utils/product-image";
 
 interface Props {
   product: {
@@ -35,7 +35,7 @@ export function MarketplaceProductCard({ product }: Props) {
     : 0;
   const inStock = product.quantity === undefined || product.quantity > 0;
   const imageUrl = product.images?.[0]?.url;
-  const imgSrc = getProductImage(imageUrl, product.name);
+  const imgSrc = getProductImage(imageUrl);
   const category = product.categories?.[0]?.category;
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -71,8 +71,7 @@ export function MarketplaceProductCard({ product }: Props) {
           className="h-full w-full object-contain p-5 transition-transform duration-500 group-hover:scale-[1.04]"
           onError={(e) => {
             const img = e.target as HTMLImageElement;
-            const fallback = getPicsumFallback(product.name);
-            if (img.src !== fallback) img.src = fallback;
+            if (!img.src.endsWith(PRODUCT_PLACEHOLDER)) img.src = PRODUCT_PLACEHOLDER;
           }}
         />
         {hasDiscount && (

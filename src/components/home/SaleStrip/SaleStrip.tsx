@@ -6,7 +6,7 @@ import { Link } from "@/i18n/routing";
 import { Flame, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import { formatPrice } from "@/lib/utils/format-price";
-import { getProductImage, getProductImageFallback } from "@/lib/utils/product-image";
+import { getProductImage, PRODUCT_PLACEHOLDER } from "@/lib/utils/product-image";
 import { getDiscountPercent, type HomepageProduct } from "@/lib/homepage-products";
 import { useCurrency } from "@/providers/CurrencyProvider";
 
@@ -83,7 +83,7 @@ export function SaleStrip({ products }: Props) {
         >
           {products.map((p, i) => {
             const discount = getDiscountPercent(p);
-            const imgUrl = getProductImage(p.images?.[0]?.url, p.name);
+            const imgUrl = getProductImage(p.images?.[0]?.url);
             return (
               <motion.div
                 key={p.id}
@@ -108,7 +108,7 @@ export function SaleStrip({ products }: Props) {
                       height={100}
                       className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = getProductImageFallback("120x100");
+                        (e.target as HTMLImageElement).src = PRODUCT_PLACEHOLDER;
                       }}
                     />
                   </div>

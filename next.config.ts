@@ -49,6 +49,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "images.icecat.biz",
+      },
+      {
+        protocol: "https",
         hostname: "images.electreia.co.uk",
       },
       {
