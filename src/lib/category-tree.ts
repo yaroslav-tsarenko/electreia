@@ -1,5 +1,5 @@
 import { unstable_cache } from "next/cache";
-import { prisma } from "@/lib/prisma";
+import { catalogDb } from "@/lib/catalog-db";
 
 interface CategoryLink {
   id: string;
@@ -8,7 +8,7 @@ interface CategoryLink {
 
 const getCategoryLinks = unstable_cache(
   async (): Promise<CategoryLink[]> => {
-    return prisma.category.findMany({
+    return catalogDb.category.findMany({
       select: { id: true, parentId: true },
     });
   },

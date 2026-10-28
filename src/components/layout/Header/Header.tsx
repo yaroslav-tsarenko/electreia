@@ -812,7 +812,7 @@ export function Header() {
                                 key={it.productId}
                                 className="flex items-center gap-3 rounded-lg border border-[color:var(--color-line)] p-2"
                               >
-                                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-[color:var(--color-bg-secondary)]">
+                                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-white">
                                   {it.imageUrl && (
                                     <Image
                                       src={it.imageUrl}

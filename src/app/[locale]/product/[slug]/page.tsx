@@ -1,5 +1,5 @@
 import { unstable_cache } from "next/cache";
-import { prisma } from "@/lib/prisma";
+import { catalogDb } from "@/lib/catalog-db";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { ProductGallery } from "@/components/product/ProductGallery/ProductGallery";
@@ -19,7 +19,7 @@ type CategoryRow = { id: string; name: string; slug: string; parentId: string | 
 
 const getCategoryLookup = unstable_cache(
   async (): Promise<CategoryRow[]> => {
-    return prisma.category.findMany({
+    return catalogDb.category.findMany({
       select: { id: true, name: true, slug: true, parentId: true },
     });
   },
@@ -49,7 +49,7 @@ async function getCategoryChain(categoryId: string): Promise<{ name: string; slu
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug, locale } = await params;
-  const product = await prisma.product.findUnique({
+  const product = await catalogDb.product.findUnique({
     where: { slug },
     select: { name: true, metaTitle: true, metaDescription: true, shortDescription: true },
   });
@@ -90,7 +90,7 @@ const cardSelect = {
 
 async function getRelatedProducts(productId: string, categoryId: string | undefined) {
   if (!categoryId) return [];
-  const rows = await prisma.product.findMany({
+  const rows = await catalogDb.product.findMany({
     where: {
       status: "ACTIVE",
       id: { not: productId },
@@ -117,7 +117,7 @@ async function getRelatedProducts(productId: string, categoryId: string | undefi
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
 
-  const product = await prisma.product.findUnique({
+  const product = await catalogDb.product.findUnique({
     where: { slug },
     select: {
       id: true,
@@ -154,7 +154,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     },
   });
 
-  if (!product || product.status === "ARCHIVED") notFound();
+  if (!product || product.status === "ARCHIVED" || product.images.length === 0) notFound();
 
   const primaryCategory = product.categories[0]?.category;
   const categoryChain = primaryCategory

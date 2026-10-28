@@ -100,7 +100,7 @@ export function SaleStrip({ products }: Props) {
                       -{discount}%
                     </span>
                   )}
-                  <div className="aspect-square w-full overflow-hidden rounded-xl bg-[color:var(--color-bg)] p-4">
+                  <div className="aspect-square w-full overflow-hidden rounded-xl bg-white p-4">
                     <Image
                       src={imgUrl}
                       alt={p.name}

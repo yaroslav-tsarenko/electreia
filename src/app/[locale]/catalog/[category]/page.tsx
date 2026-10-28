@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { catalogDb } from "@/lib/catalog-db";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Link } from "@/i18n/routing";
@@ -18,7 +18,7 @@ interface CategoryPageProps {
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { category: slug, locale } = await params;
 
-  const category = await prisma.category.findUnique({
+  const category = await catalogDb.category.findUnique({
     where: { slug },
     select: { name: true, description: true, slug: true },
   });
@@ -46,7 +46,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const sp = (await searchParams) || {};
   const page = Math.max(1, parseInt(sp.page || "1", 10) || 1);
 
-  const category = await prisma.category.findUnique({
+  const category = await catalogDb.category.findUnique({
     where: { slug },
     select: { id: true, name: true, description: true, slug: true },
   });
@@ -62,7 +62,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   };
 
   const [productsRaw, total] = await Promise.all([
-    prisma.product.findMany({
+    catalogDb.product.findMany({
       where,
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * PAGE_SIZE,
@@ -86,7 +86,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
         },
       },
     }),
-    prisma.product.count({ where }),
+    catalogDb.product.count({ where }),
   ]);
 
   const products = productsRaw.map((p) => ({

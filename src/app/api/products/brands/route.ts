@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { unstable_cache } from "next/cache";
-import { prisma } from "@/lib/prisma";
+import { catalogDb } from "@/lib/catalog-db";
 
 const getBrands = unstable_cache(
   async (): Promise<string[]> => {
-    const products = await prisma.product.findMany({
-      where: { status: "ACTIVE", brand: { not: null } },
+    const products = await catalogDb.product.findMany({
+      where: { status: "ACTIVE", brand: { not: null }, images: { some: {} } },
       select: { brand: true },
       distinct: ["brand"],
       orderBy: { brand: "asc" },

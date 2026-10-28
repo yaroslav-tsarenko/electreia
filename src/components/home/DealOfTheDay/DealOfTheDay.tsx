@@ -116,7 +116,7 @@ export function DealOfTheDay({ product }: Props) {
         transition={{ duration: 0.5, delay: 0.25 }}
       >
         <motion.div
-          className="flex aspect-square w-full max-w-[320px] items-center justify-center rounded-2xl bg-white/5 p-6"
+          className="flex aspect-square w-full max-w-[320px] items-center justify-center rounded-2xl bg-white p-6"
           whileHover={{ scale: 1.03 }}
           transition={{ type: "spring", stiffness: 200 }}
         >

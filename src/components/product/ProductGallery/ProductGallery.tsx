@@ -19,9 +19,8 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
       <div className="flex flex-col gap-3">
         <div
           className="relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl border border-[color:var(--color-line)] p-3 text-[color:var(--color-text-tertiary)] sm:aspect-[4/3] sm:p-5"
-          style={{ backgroundColor: "rgb(247, 247, 247)" }}
+          style={{ backgroundColor: "#ffffff" }}
         >
-          <div className="absolute inset-0 tech-grid opacity-30" />
           <div className="relative flex flex-col items-center gap-2">
             <ImageOff size={28} strokeWidth={1.4} />
             <span className="font-mono text-[11px] uppercase tracking-[0.14em]">
@@ -40,10 +39,8 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
       {/* Primary image */}
       <div
         className="group relative aspect-square cursor-zoom-in overflow-hidden rounded-2xl border border-[color:var(--color-line)] sm:aspect-[4/3]"
-        style={{ backgroundColor: "rgb(247, 247, 247)" }}
+        style={{ backgroundColor: "#ffffff" }}
       >
-        <div className="pointer-events-none absolute inset-0 tech-grid opacity-30" />
-
         {/* Frame index badge */}
         <span className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-md border border-[color:var(--color-line)] bg-[color:var(--color-bg-elevated)]/90 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--color-text-secondary)] backdrop-blur">
           <span className="tabular-nums">
@@ -102,14 +99,13 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
                 whileTap={{ scale: 0.94 }}
                 onClick={() => setSelectedIndex(index)}
                 aria-label={`Show image ${index + 1}`}
-                style={{ backgroundColor: "rgb(247, 247, 247)" }}
+                style={{ backgroundColor: "#ffffff" }}
                 className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 p-1 transition-all sm:h-[76px] sm:w-[76px] ${
                   isActive
                     ? "border-[color:var(--color-primary)] shadow-[0_0_0_3px_var(--color-primary-tint)]"
                     : "border-[color:var(--color-line)] hover:-translate-y-px hover:border-[color:var(--color-primary)]/60"
                 }`}
               >
-                <div className="pointer-events-none absolute inset-0 tech-grid opacity-25" />
                 <Image
                   src={getProductImage(image.url)}
                   alt={image.alt || `${productName} ${index + 1}`}

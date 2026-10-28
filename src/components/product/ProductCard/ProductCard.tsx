@@ -73,10 +73,8 @@ export function ProductCard({
       {/* Image area — fixed uniform aspect */}
       <div
         className="relative aspect-square overflow-hidden"
-        style={{ backgroundColor: "rgb(247, 247, 247)" }}
+        style={{ backgroundColor: "#ffffff" }}
       >
-        {/* faint tech grid on card image bg */}
-        <div aria-hidden className="absolute inset-0 tech-grid opacity-40" />
         <Image
           src={resolvedImage}
           alt={name}

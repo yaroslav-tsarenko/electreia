@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { catalogDb } from "@/lib/catalog-db";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs/Breadcrumbs";
 
@@ -9,7 +9,7 @@ interface PageProps {
 export default async function DynamicPage({ params }: PageProps) {
   const { slug } = await params;
 
-  const page = await prisma.page.findUnique({
+  const page = await catalogDb.page.findUnique({
     where: { slug },
   });
 

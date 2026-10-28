@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { catalogDb } from "@/lib/catalog-db";
 import { z } from "zod";
 import { slugify } from "@/lib/utils/slugify";
 
@@ -19,12 +20,16 @@ type CategoryNode = Awaited<ReturnType<typeof getCategoriesFlat>>[number] & {
 
 const getCategoriesFlat = unstable_cache(
   async () => {
-    return prisma.category.findMany({
+    return catalogDb.category.findMany({
       orderBy: { name: "asc" },
-      include: { _count: { select: { products: true } } },
+      include: {
+        _count: {
+          select: { products: { where: { product: { status: "ACTIVE", images: { some: {} } } } } },
+        },
+      },
     });
   },
-  ["api-categories-flat-v1"],
+  ["api-categories-flat-v2"],
   { revalidate: 300, tags: ["categories"] },
 );
 

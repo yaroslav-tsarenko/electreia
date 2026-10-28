@@ -4,6 +4,11 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
+  // src/lib/catalog-db.ts reads this at runtime when the database is down.
+  outputFileTracingIncludes: {
+    "/*": ["./data/catalog-snapshot.json.gz"],
+    "/**/*": ["./data/catalog-snapshot.json.gz"],
+  },
   images: {
     unoptimized: true,
     remotePatterns: [

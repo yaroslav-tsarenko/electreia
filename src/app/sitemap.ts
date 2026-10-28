@@ -1,17 +1,17 @@
 import type { MetadataRoute } from "next";
-import { prisma } from "@/lib/prisma";
+import { catalogDb } from "@/lib/catalog-db";
 
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://electreia.co.uk";
 
-  const products = await prisma.product.findMany({
-    where: { status: "ACTIVE" },
+  const products = await catalogDb.product.findMany({
+    where: { status: "ACTIVE", images: { some: {} } },
     select: { slug: true, updatedAt: true },
   });
 
-  const categories = await prisma.category.findMany({
+  const categories = await catalogDb.category.findMany({
     where: { isActive: true },
     select: { slug: true, updatedAt: true },
   });

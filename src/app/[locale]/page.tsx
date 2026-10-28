@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { unstable_cache } from "next/cache";
-import { prisma } from "@/lib/prisma";
+import { catalogDb } from "@/lib/catalog-db";
 import { JsonLd } from "@/components/shared/SEO/JsonLd";
 import { MarketplaceHome } from "@/components/home/MarketplaceHome/MarketplaceHome";
 import {
@@ -131,7 +131,7 @@ function toHomepageCategory(node: CategoryNode): HomepageCategory {
 
 const getActiveCategoriesFlat = unstable_cache(
   async (): Promise<CategoryFlat[]> => {
-    return prisma.category.findMany({
+    return catalogDb.category.findMany({
       where: { isActive: true },
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
       select: {
@@ -152,7 +152,7 @@ const getActiveCategoriesFlat = unstable_cache(
 
 const getCategoryProductCounts = unstable_cache(
   async (): Promise<Array<[string, number]>> => {
-    const grouped = await prisma.productCategory.groupBy({
+    const grouped = await catalogDb.productCategory.groupBy({
       by: ["categoryId"],
       where: { product: { status: "ACTIVE", images: { some: {} } } },
       _count: { productId: true },
@@ -168,7 +168,7 @@ async function fetchProducts(args: {
   orderBy: import("@prisma/client").Prisma.ProductOrderByWithRelationInput;
   take: number;
 }) {
-  return prisma.product.findMany({
+  return catalogDb.product.findMany({
     where: args.where,
     orderBy: args.orderBy,
     take: args.take,
@@ -196,15 +196,15 @@ async function getHomeData() {
       popularRows,
       brandRows,
     ] = await Promise.all([
-      prisma.banner.findMany({ where: { isActive: true, type: "HERO" }, orderBy: { sortOrder: "asc" } }),
-      prisma.banner.findMany({ where: { isActive: true, type: "DEAL_CARD" }, orderBy: { sortOrder: "asc" } }),
-      prisma.banner.findMany({ where: { isActive: true, type: "PROMO_SMALL" }, orderBy: { sortOrder: "asc" } }),
-      prisma.banner.findMany({ where: { isActive: true, type: "PROMO_WIDE" }, orderBy: { sortOrder: "asc" } }),
-      prisma.brand.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } }),
-      prisma.homepageSection.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } }),
-      prisma.homepageTab.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } }),
-      prisma.utilityLink.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } }),
-      prisma.promoStripItem.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } }),
+      catalogDb.banner.findMany({ where: { isActive: true, type: "HERO" }, orderBy: { sortOrder: "asc" } }),
+      catalogDb.banner.findMany({ where: { isActive: true, type: "DEAL_CARD" }, orderBy: { sortOrder: "asc" } }),
+      catalogDb.banner.findMany({ where: { isActive: true, type: "PROMO_SMALL" }, orderBy: { sortOrder: "asc" } }),
+      catalogDb.banner.findMany({ where: { isActive: true, type: "PROMO_WIDE" }, orderBy: { sortOrder: "asc" } }),
+      catalogDb.brand.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } }),
+      catalogDb.homepageSection.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } }),
+      catalogDb.homepageTab.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } }),
+      catalogDb.utilityLink.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } }),
+      catalogDb.promoStripItem.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } }),
       getActiveCategoriesFlat(),
       getCategoryProductCounts().then((entries) => new Map(entries)),
       fetchProducts({
@@ -360,15 +360,11 @@ async function getHomeData() {
       categoryShowcase,
     };
   } catch (e) {
+    // catalogDb already falls back to the catalog snapshot, so getting here means
+    // even that failed. Rethrow rather than render an empty storefront: ISR then
+    // keeps serving the last good homepage instead of caching a blank one.
     console.error("Homepage data fetch error:", e);
-    return {
-      heroSlides: [], dealCards: [], promoSmall: [], promoWide: [],
-      brands: [], sections: [], tabs: [], utilityLinks: [],
-      promoStripItems: [], sectionProducts: {}, categories: [],
-      featuredProducts: [], saleProducts: [], newProducts: [],
-      popularProducts: [], categorySections: [], brandSections: [],
-      categoryShowcase: [],
-    };
+    throw e;
   }
 }
 

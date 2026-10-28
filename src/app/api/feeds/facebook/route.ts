@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { catalogDb } from "@/lib/catalog-db";
 
 export async function GET() {
   try {
-    const products = await prisma.product.findMany({
-      where: { status: "ACTIVE" },
+    const products = await catalogDb.product.findMany({
+      where: { status: "ACTIVE", images: { some: {} } },
       include: { images: { orderBy: { sortOrder: "asc" }, take: 1 } },
     });
 

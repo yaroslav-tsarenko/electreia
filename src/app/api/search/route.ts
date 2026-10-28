@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { catalogDb } from "@/lib/catalog-db";
 import { getDescendantCategoryIds } from "@/lib/category-tree";
 
 /**
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     let categoryIds: string[] | null = null;
     if (categorySlug && categorySlug !== "all") {
-      const cat = await prisma.category.findUnique({
+      const cat = await catalogDb.category.findUnique({
         where: { slug: categorySlug },
         select: { id: true },
       });
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const products = await prisma.product.findMany({
+    const products = await catalogDb.product.findMany({
       where: {
         status: "ACTIVE",
         images: { some: {} },

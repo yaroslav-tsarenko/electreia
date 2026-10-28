@@ -61,7 +61,7 @@ export function MarketplaceProductCard({ product }: Props) {
     >
       <div
         className="relative aspect-square overflow-hidden"
-        style={{ backgroundColor: "rgb(247, 247, 247)" }}
+        style={{ backgroundColor: "#ffffff" }}
       >
         <Image
           src={imgSrc}

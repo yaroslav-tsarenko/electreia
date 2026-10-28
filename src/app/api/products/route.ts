@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { catalogDb } from "@/lib/catalog-db";
 import { productSchema } from "@/lib/validators/product";
 import { PRODUCTS_PER_PAGE } from "@/lib/utils/constants";
 import { slugify } from "@/lib/utils/slugify";
@@ -52,7 +53,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (category) {
-      const cat = await prisma.category.findUnique({
+      const cat = await catalogDb.category.findUnique({
         where: { slug: category },
         select: { id: true },
       });
@@ -113,7 +114,7 @@ export async function GET(request: NextRequest) {
     })();
 
     const [products, total] = await Promise.all([
-      prisma.product.findMany({
+      catalogDb.product.findMany({
         where,
         orderBy,
         skip: (page - 1) * pageSize,
@@ -142,7 +143,7 @@ export async function GET(request: NextRequest) {
           },
         },
       }),
-      prisma.product.count({ where }),
+      catalogDb.product.count({ where }),
     ]);
 
     return NextResponse.json({
