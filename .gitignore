@@ -46,3 +46,7 @@ next-env.d.ts
 
 /src/generated/prisma
 claude-code-ecommerce-free.md
+
+# local database dumps
+db-backup-*.dump
+backup-*/
