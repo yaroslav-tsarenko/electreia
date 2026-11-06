@@ -11,7 +11,7 @@ import {
   type HomepageProduct,
 } from "@/lib/homepage-products";
 
-export const revalidate = 60;
+export const revalidate = 86400;
 
 interface HomePageProps {
   params: Promise<{ locale: string }>;
