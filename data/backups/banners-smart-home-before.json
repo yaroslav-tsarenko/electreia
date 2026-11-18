@@ -1,0 +1,42 @@
+[
+ {
+  "id": "seed-hero-2",
+  "type": "HERO",
+  "title": "The house, aware",
+  "subtitle": "Ambient smart home",
+  "description": "Matter-native hubs, sensors and lighting that responds. Fewer boxes on the wall, more moments of calm.",
+  "imageUrl": null,
+  "linkUrl": "/catalog/smart-home",
+  "ctaLabel": "Shop smart home",
+  "bgColor": "#1F1A3A",
+  "textColor": "#EDF1F5",
+  "badgeText": "SERIES 03",
+  "oldPrice": null,
+  "newPrice": null,
+  "discountText": null,
+  "isActive": true,
+  "sortOrder": 2,
+  "createdAt": "2026-07-06T14:44:22.101Z",
+  "updatedAt": "2026-07-06T14:44:22.101Z"
+ },
+ {
+  "id": "seed-promo-small-2",
+  "type": "PROMO_SMALL",
+  "title": "Smart Home",
+  "subtitle": "Matter-native, aware",
+  "description": null,
+  "imageUrl": null,
+  "linkUrl": "/catalog/smart-home",
+  "ctaLabel": "Shop Smart Home",
+  "bgColor": "#1F1A3A",
+  "textColor": "#EDF1F5",
+  "badgeText": null,
+  "oldPrice": null,
+  "newPrice": null,
+  "discountText": null,
+  "isActive": true,
+  "sortOrder": 2,
+  "createdAt": "2026-07-06T14:44:22.814Z",
+  "updatedAt": "2026-07-06T14:44:22.814Z"
+ }
+]
