@@ -20,7 +20,7 @@ const INPUT_CLASS =
 const CONTACT_INFO = [
   { icon: Mail, title: "Email Us", detail: "info@electreia.co.uk", sub: "General inquiries — reply within 24h" },
   { icon: Mail, title: "Wholesale (B2B)", detail: "b2b@electreia.co.uk", sub: "Bulk and trade orders" },
-  { icon: MapPin, title: "Our Office", detail: "Bridgend, Mid Glamorgan", sub: "LORDCARE LIMITED", tooltip: "Academy House, 11 Dunraven Place, Bridgend, Mid Glamorgan, CF31 1JF, United Kingdom\nCompany No. 16020956" },
+  { icon: MapPin, title: "Our Office", detail: "Bridgend, Mid Glamorgan", sub: "LORDCARE LIMITED", tooltip: "Academy House, 11 Dunraven Place, Bridgend, Mid Glamorgan, CF31 1JF, United Kingdom\nCompany No. 15982435" },
   { icon: Clock, title: "Working Hours", detail: "Mon-Fri 9:00-18:00", sub: "Sat 10:00-14:00" },
 ];
 
