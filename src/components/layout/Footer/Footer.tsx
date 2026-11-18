@@ -221,7 +221,7 @@ export function Footer() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@electreia.co.uk"
+                placeholder="you@example.co.uk"
                 className="min-w-0 flex-1 rounded-xl border border-[#232A36] bg-[#0B0E14] px-4 py-2.5 font-mono text-sm text-[#EDF1F5] placeholder:text-[#5A6478] transition-colors focus:border-[color:var(--color-primary)] focus:outline-none focus:shadow-[0_0_0_4px_rgba(46,125,255,0.15)]"
               />
               <button

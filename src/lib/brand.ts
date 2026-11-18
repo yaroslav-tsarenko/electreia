@@ -28,7 +28,7 @@ export const brand = {
 
   contact: {
     email: "info@electreia.co.uk",
-    emailB2B: "b2b@electreia.co.uk",
+    emailB2B: "info@electreia.co.uk",
     phone: "+44 7463 590620",
     phoneHref: "tel:+447463590620",
   },

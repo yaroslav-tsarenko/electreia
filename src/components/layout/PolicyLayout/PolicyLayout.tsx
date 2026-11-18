@@ -43,7 +43,7 @@ export function ContactBlock() {
         <br />
         General email: info@electreia.co.uk
         <br />
-        Wholesale (B2B): b2b@electreia.co.uk
+        Wholesale (B2B): info@electreia.co.uk
       </p>
     </div>
   );
