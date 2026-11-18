@@ -83,16 +83,16 @@ const slides: Slide[] = [
     gradientTo: "#1F1A3A",
   },
   {
-    id: "smart-home",
-    eyebrow: "Series 03 · Ambient",
-    headline: "The house,",
-    headlineAccent: "aware.",
-    sub: "Matter-native hubs, sensors and lighting that responds. Fewer boxes on the wall, more calm.",
-    priceFrom: "£89",
-    cta: { label: "Shop smart home", href: "/catalog/smart-home" },
+    id: "mobile",
+    eyebrow: "Series 03 · Mobile",
+    headline: "Pocket power,",
+    headlineAccent: "unboxed.",
+    sub: "Smartphones and tablets from the brands you trust — new, sealed and shipped from the UK.",
+    priceFrom: "£93",
+    cta: { label: "Shop smartphones", href: "/catalog/smartphones-tablets" },
     secondary: { label: "See sale", href: "/catalog?onSale=true" },
     image:
-      "https://images.unsplash.com/photo-1558002038-1055907df827?w=1200&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200&q=80&auto=format&fit=crop",
     gradientFrom: "#141821",
     gradientTo: "#1F1A3A",
   },
@@ -127,7 +127,7 @@ const promoTiles = [
     accent: "success" as const,
     icon: Repeat,
     image:
-      "https://images.unsplash.com/photo-1512446733611-9099a758e63c?w=800&q=80&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&q=80&auto=format&fit=crop",
   },
 ];
 

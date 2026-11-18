@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 }
 
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
-  const { category: slug, locale } = await params;
+  const { category: slug } = await params;
   const sp = (await searchParams) || {};
   const page = Math.max(1, parseInt(sp.page || "1", 10) || 1);
 
@@ -102,7 +102,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   }));
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const basePath = `/${locale}/catalog/${category.slug}`;
+  // The locale-aware Link adds the /{locale} prefix itself.
+  const basePath = `/catalog/${category.slug}`;
 
   return (
     <div className="mx-auto w-full max-w-[var(--max-width)] px-4 pb-12 [overflow-wrap:anywhere]">
